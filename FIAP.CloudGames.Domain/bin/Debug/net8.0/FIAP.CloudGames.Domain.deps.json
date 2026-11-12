@@ -1,0 +1,23 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "FIAP.CloudGames.Domain/1.0.0": {
+        "runtime": {
+          "FIAP.CloudGames.Domain.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "FIAP.CloudGames.Domain/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
