@@ -6,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDependencyInjection();
 builder.Services.AddAppConnections(builder.Configuration);
 builder.Services.AddAuthenticationJwt(builder.Configuration);
+builder.Services.AddSwaggerConfig(builder.Configuration);
 
 
 // Add services to the container.
@@ -13,6 +14,13 @@ builder.Services.AddAuthenticationJwt(builder.Configuration);
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+// Habilita a interface do Swagger apenas em ambiente de desenvolvimento
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // Configure the HTTP request pipeline.
 

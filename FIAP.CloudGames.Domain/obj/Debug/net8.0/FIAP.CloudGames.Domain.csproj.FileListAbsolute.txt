@@ -9,3 +9,4 @@ D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudG
 D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.Domain\obj\Debug\net8.0\refint\FIAP.CloudGames.Domain.dll
 D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.Domain\obj\Debug\net8.0\FIAP.CloudGames.Domain.pdb
 D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.Domain\obj\Debug\net8.0\ref\FIAP.CloudGames.Domain.dll
+D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.Domain\obj\Debug\net8.0\FIAP.CloudGames.Domain.sourcelink.json

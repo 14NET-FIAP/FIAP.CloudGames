@@ -13,3 +13,6 @@ D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudG
 D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.DataBase\obj\Debug\net8.0\refint\FIAP.CloudGames.DataBase.dll
 D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.DataBase\obj\Debug\net8.0\FIAP.CloudGames.DataBase.pdb
 D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.DataBase\obj\Debug\net8.0\ref\FIAP.CloudGames.DataBase.dll
+D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.DataBase\bin\Debug\net8.0\FIAP.CloudGames.DataBase.runtimeconfig.json
+D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.DataBase\obj\Debug\net8.0\FIAP.CloudGames.DataBase.sourcelink.json
+D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.DataBase\obj\Debug\net8.0\FIAP.CloudGames.DataBase.genruntimeconfig.cache
