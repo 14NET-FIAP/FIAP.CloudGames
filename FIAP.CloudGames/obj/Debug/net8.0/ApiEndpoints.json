@@ -32,7 +32,13 @@
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "gameDto",
+        "Type": "FIAP.CloudGames.Application.DTOs.Games.CreateGameDto",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   },
   {
@@ -60,8 +66,13 @@
     "Order": 0,
     "Parameters": [
       {
+        "Name": "gameDto",
+        "Type": "FIAP.CloudGames.Application.DTOs.Games.UpdateGameDto",
+        "IsRequired": true
+      },
+      {
         "Name": "id",
-        "Type": "System.Int32",
+        "Type": "System.Guid",
         "IsRequired": true
       }
     ],

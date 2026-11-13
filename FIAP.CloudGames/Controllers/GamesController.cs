@@ -1,4 +1,7 @@
 ﻿using FIAP.CloudGames.API.Attributes;
+using FIAP.CloudGames.Application.DTOs.Games;
+using FIAP.CloudGames.Application.Interfaces;
+using FIAP.CloudGames.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +13,14 @@ namespace FIAP.CloudGames.API.Controllers;
 [Authorize]
 public class GamesController : Controller
 {
+    private readonly IGamesService _gamesService;
+    public GamesController(IGamesService gamesService) => _gamesService = gamesService;
+
 
     [HttpGet]
     public IActionResult Get()
     {
+        ResultList<GamesListDto> result = _gamesService.GetAllGames();
         return Ok("Games list");
     }
 
@@ -25,15 +32,24 @@ public class GamesController : Controller
 
     [HttpPost]
     [IsAdmin]
-    public IActionResult Create()
+    public IActionResult Create([FromBody] CreateGameDto gameDto)
     {
-        return Ok();
+        Result result = _gamesService.CreateNewGame(gameDto);
+
+        if(!result.IsSuccess)
+            return BadRequest(result);
+
+        return Created();
     }
 
     [HttpPut("{id}")]
     [IsAdmin]
-    public IActionResult Update(int id)
+    public IActionResult Update([FromBody] UpdateGameDto gameDto, Guid id)
     {
+        Result result = _gamesService.UpdateGame(gameDto, id);
+
+        if(!result.IsSuccess)
+            return BadRequest(result);
         return Ok();
     }
 

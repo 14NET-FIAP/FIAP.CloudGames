@@ -15,12 +15,16 @@ public static class DependencyInjectionConfiguration
 
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IGamesService, GamesService>();
 
         #endregion
 
         #region Repositorys
 
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IGameRepository, GameRepository>();
+        services.AddScoped<IPromotionRepository, PromotionRepository>();
+
 
         #endregion 
 

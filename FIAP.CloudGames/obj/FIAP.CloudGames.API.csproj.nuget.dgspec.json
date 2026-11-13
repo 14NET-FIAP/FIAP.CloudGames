@@ -120,6 +120,9 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
+              "D:\\Aulas\\PósTech - FIAP\\Fase 1\\TechChallenge\\Backup\\FIAP.CloudGames\\FIAP.CloudGames.Application\\FIAP.CloudGames.Application.csproj": {
+                "projectPath": "D:\\Aulas\\PósTech - FIAP\\Fase 1\\TechChallenge\\Backup\\FIAP.CloudGames\\FIAP.CloudGames.Application\\FIAP.CloudGames.Application.csproj"
+              },
               "D:\\Aulas\\PósTech - FIAP\\Fase 1\\TechChallenge\\Backup\\FIAP.CloudGames\\FIAP.CloudGames.Domain\\FIAP.CloudGames.Domain.csproj": {
                 "projectPath": "D:\\Aulas\\PósTech - FIAP\\Fase 1\\TechChallenge\\Backup\\FIAP.CloudGames\\FIAP.CloudGames.Domain\\FIAP.CloudGames.Domain.csproj"
               }

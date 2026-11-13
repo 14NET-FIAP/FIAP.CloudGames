@@ -778,6 +778,7 @@
       },
       "FIAP.CloudGames.DataBase/1.0.0": {
         "dependencies": {
+          "FIAP.CloudGames.Application": "1.0.0",
           "FIAP.CloudGames.Domain": "1.0.0",
           "MongoDB.EntityFrameworkCore": "8.4.5"
         },
