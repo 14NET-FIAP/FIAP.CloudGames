@@ -32,6 +32,14 @@ public class GameRepository : IGameRepository
         return games;
     }
 
+    public async Task<IReadOnlyList<Game>> GetAllActivesGamesAsync(CancellationToken ct = default)
+    {
+        return await _context.Game
+            .AsNoTracking()
+            .Where(g => g.IsActive)
+            .ToListAsync(ct);
+    }
+
     public Game? GetGameById(Guid id)
     {
         return _context.Game.FirstOrDefault(g => g.Id == id) ?? null;

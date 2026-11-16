@@ -1,4 +1,7 @@
 ﻿using FIAP.CloudGames.API.Attributes;
+using FIAP.CloudGames.Application.DTOs.Promotion;
+using FIAP.CloudGames.Application.Interfaces;
+using FIAP.CloudGames.Domain.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +13,9 @@ namespace FIAP.CloudGames.API.Controllers;
 [IsAdmin]
 public class PromotionsController : Controller
 {
+    private readonly IPromotionService _promotionService;
+    public PromotionsController(IPromotionService promotionService) => _promotionService = promotionService;
+
     [HttpGet]
     public IActionResult GetAllPromotions()
     {
@@ -23,21 +29,33 @@ public class PromotionsController : Controller
     }
 
     [HttpPost]
-    public IActionResult CreatePromotion()
+    public IActionResult CreatePromotion([FromBody] CreatePromotionDto promotionDto)
     {
-        return Ok();
+        Result result = _promotionService.CreatePromotion(promotionDto);
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return NoContent();
     }
 
     [HttpPut("{id}")]
-    public IActionResult UpdatePromotion(int id)
+    public IActionResult UpdatePromotion([FromBody]UpdatePromotionDto promotionDto, Guid id)
     {
-        return Ok();
+        Result result = _promotionService.UpdatePromotion(id, promotionDto);
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return NoContent();
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeletePromotion(int id)
+    public IActionResult DeletePromotion(Guid id)
     {
-        return Ok();
+        Result result = _promotionService.DesactivePromotion(id);
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return NoContent();
     }
 
 }

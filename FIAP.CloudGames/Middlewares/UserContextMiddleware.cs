@@ -1,7 +1,5 @@
 ﻿using FIAP.CloudGames.Domain.Enums;
 using FIAP.CloudGames.Domain.Services;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 
 namespace FIAP.CloudGames.Application.Middlewares;

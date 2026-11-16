@@ -11,6 +11,7 @@ public interface IGameRepository
 {
     void CreateGame(Game game);
     IEnumerable<Game> GetAllActivesGames();
+    Task<IReadOnlyList<Game>> GetAllActivesGamesAsync(CancellationToken ct = default);
     Game? GetGameById(Guid id);
     void UpdateGame(Guid id, Game gameDto);
     bool VerifyIfExist(string name, DateTime releaseDate);

@@ -16,6 +16,7 @@ public static class DependencyInjectionConfiguration
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IGamesService, GamesService>();
+        services.AddScoped<IPromotionService, PromotionService>();
 
         #endregion
 

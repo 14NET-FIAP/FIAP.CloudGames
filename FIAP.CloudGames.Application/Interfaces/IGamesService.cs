@@ -6,7 +6,8 @@ namespace FIAP.CloudGames.Application.Interfaces;
 
 public interface IGamesService
 {
-    Result CreateNewGame(CreateGameDto gameDto);
+    Result<Guid> CreateNewGame(CreateGameDto gameDto);
     ResultList<GamesListDto> GetAllGames();
     Result UpdateGame(UpdateGameDto gameDto, Guid id);
+    Task<ResultList<GamesListDto>> GetAllGamesAsync(CancellationToken ct = default);
 }

@@ -18,48 +18,76 @@ public class GamesService : IGamesService
         _promotionRepository = promotionRepository;
     }
 
-    public Result CreateNewGame(CreateGameDto gameDto)
+    public Result<Guid> CreateNewGame(CreateGameDto gameDto)
     {
         try
         {
             Game game = GameMapping.MapGameToCreate(gameDto);
 
-            if (VerifyGameExists(game.Title, game.ReleaseDate.Value))
-                return Result.Failure("Game already exists.");
+            if (VerifyGameExists(game.Title, game.ReleaseDate!.Value))
+                return Result<Guid>.Failure("Game already exists.");
 
             _gameRepository.CreateGame(game);
-            return Result.Success();
+            return Result<Guid>.Success(new Guid());
         }
         catch (Exception ex)
         {
-            return Result.Failure($"An error occurred while creating the game: {ex.Message}");
+            return Result<Guid>.Failure($"An error occurred while creating the game: {ex.Message}");
         }
 
     }
 
-    public ResultList<GamesListDto> GetAllGames()
+    public async Task<ResultList<GamesListDto>> GetAllGamesAsync(CancellationToken ct = default)
     {
-        IEnumerable<Game> games = _gameRepository.GetAllActivesGames();
-
-        DateTime currentDate = DateTime.UtcNow;
-        ILookup<Guid, Promotion> promotionsByGame = _promotionRepository
-            .GetActivePromotions(currentDate)
-            .ToLookup(promotion => promotion.GameId);
-
-        List<GamesListDto> gameDtos = games.Select(game =>
+        try
         {
-            Promotion? promotion = promotionsByGame[game.Id]
-                .OrderByDescending(d => d.DiscountPercentage)
-                .FirstOrDefault();
+            IReadOnlyList<Game> games = await _gameRepository.GetAllActivesGamesAsync(ct);
 
-            decimal priceWithDiscount = promotion is null
-                ? game.Price.Value
-                : game.Price.Value * (100m - promotion.DiscountPercentage) / 100m;
+            if (games.Count == 0)
+                return ResultList<GamesListDto>.Success(new List<GamesListDto>());
 
-            return game.MapGameToListDto(priceWithDiscount);
-        }).ToList();
+            DateTime currentDate = DateTime.UtcNow;
 
-        return ResultList<GamesListDto>.Success(gameDtos);
+            IReadOnlyList<Promotion> promotions = await _promotionRepository
+                .GetActivePromotionsByGameIdsAsync(games.Select(g => g.Id), currentDate, ct);
+
+            // Já guarda só a MAIOR promoção de cada jogo
+            Dictionary<Guid, Promotion> bestPromotionByGame = promotions
+                .GroupBy(p => p.GameId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.MaxBy(p => p.DiscountPercentage)!);
+
+            List<GamesListDto> gameDtos = games
+                .Select(game =>
+                {
+                    decimal price = game.Price!.Value;
+
+                    if (bestPromotionByGame.TryGetValue(game.Id, out Promotion? promotion))
+                    {
+                        price = CalculateDiscountedPrice(price, promotion.DiscountPercentage);
+                    }
+
+                    return game.MapGameToDatailDto(price);
+                })
+                .ToList();
+
+            return ResultList<GamesListDto>.Success(gameDtos);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            return ResultList<GamesListDto>.Failure($"Não foi possível carregar os jogos: {ex.Message}");
+        }
+    }
+
+    private static decimal CalculateDiscountedPrice(decimal price, decimal discountPercentage)
+    {
+        decimal safeDiscount = Math.Clamp(discountPercentage, 0m, 100m);
+        return Math.Round(price * (100m - safeDiscount) / 100m, 2, MidpointRounding.AwayFromZero);
     }
 
     public Result UpdateGame(UpdateGameDto gameDto, Guid id)
@@ -81,4 +109,9 @@ public class GamesService : IGamesService
 
     private bool VerifyGameExists(string name, DateTime releaseDate) => _gameRepository.VerifyIfExist(name, releaseDate);
     private bool VerifyGameExists(Guid id) => _gameRepository.VerifyIfExist(id);
+
+    public ResultList<GamesListDto> GetAllGames()
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -1,10 +1,27 @@
 ﻿using Microsoft.OpenApi.Models;
+using System.Text.Json.Serialization;
 
 namespace FIAP.CloudGames.API.Config;
 
 public static class ControllerConfiguration
 {
-    public static IServiceCollection AddSwaggerConfig(
+    public static IServiceCollection AddControllerConfig(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        AddSwaggerConfig(services, configuration);
+
+        services.AddControllers()
+            .AddJsonOptions(opt =>
+            {
+                opt.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                opt.JsonSerializerOptions.WriteIndented = true;
+            });
+
+        return services;
+    }
+
+    private static IServiceCollection AddSwaggerConfig(
         this IServiceCollection services,
         IConfiguration configuration)
     {

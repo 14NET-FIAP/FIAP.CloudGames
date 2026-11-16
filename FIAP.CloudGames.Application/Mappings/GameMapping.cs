@@ -21,20 +21,16 @@ public static class GameMapping
         );
     }
 
-    public static GamesListDto MapGameToListDto(this Game game)
-    {
-        return game.MapGameToListDto(game.Price.Value);
-    }
 
-    public static GamesListDto MapGameToListDto(this Game game, decimal priceWithDiscount)
+    public static GamesListDto MapGameToDatailDto(this Game game, decimal priceWithDiscount)
     {
         return new GamesListDto(
             game.Id,
             game.Title,
             game.Description,
-            game.Price.Value,
+            game.Price ?? 0m,
             priceWithDiscount,
-            game.ReleaseDate.Value
+            game.ReleaseDate!.Value
         );
     }
 

@@ -18,15 +18,22 @@ public class GamesController : Controller
 
 
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IActionResult> Get(CancellationToken ct)
     {
-        ResultList<GamesListDto> result = _gamesService.GetAllGames();
-        return Ok("Games list");
+        ResultList<GamesListDto> result = await _gamesService.GetAllGamesAsync(ct);
+
+        if (!result.IsSuccess)
+            return BadRequest(result);
+
+        return Ok(result.Value);
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetById(int id)
+    public IActionResult GetById(Guid id)
     {
+        //Result<GamesDatailDto> result = _gamesService.GetGameById(id);
+
+
         return Ok($"Game details for ID: {id}");
     }
 
@@ -34,12 +41,12 @@ public class GamesController : Controller
     [IsAdmin]
     public IActionResult Create([FromBody] CreateGameDto gameDto)
     {
-        Result result = _gamesService.CreateNewGame(gameDto);
+        Result<Guid> result = _gamesService.CreateNewGame(gameDto);
 
         if(!result.IsSuccess)
             return BadRequest(result);
 
-        return Created();
+        return Created($"api/games/{result.Value}", result.Value);
     }
 
     [HttpPut("{id}")]
