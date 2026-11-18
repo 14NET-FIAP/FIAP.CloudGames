@@ -51,7 +51,6 @@ public class GamesService : IGamesService
             IReadOnlyList<Promotion> promotions = await _promotionRepository
                 .GetActivePromotionsByGameIdsAsync(games.Select(g => g.Id), currentDate, ct);
 
-            // Já guarda só a MAIOR promoção de cada jogo
             Dictionary<Guid, Promotion> bestPromotionByGame = promotions
                 .GroupBy(p => p.GameId)
                 .ToDictionary(
@@ -61,7 +60,7 @@ public class GamesService : IGamesService
             List<GamesListDto> gameDtos = games
                 .Select(game =>
                 {
-                    decimal price = game.Price!.Value;
+                    decimal price = game.Price!;
 
                     if (bestPromotionByGame.TryGetValue(game.Id, out Promotion? promotion))
                     {
@@ -83,6 +82,7 @@ public class GamesService : IGamesService
             return ResultList<GamesListDto>.Failure($"Não foi possível carregar os jogos: {ex.Message}");
         }
     }
+
 
     private static decimal CalculateDiscountedPrice(decimal price, decimal discountPercentage)
     {

@@ -2,6 +2,7 @@
 using FIAP.CloudGames.Application.Services;
 using FIAP.CloudGames.DataBase.Repositories;
 using FIAP.CloudGames.Domain.Repositories;
+using FIAP.CloudGames.Infra.Data;
 
 namespace FIAP.CloudGames.API.Config;
 
@@ -25,6 +26,9 @@ public static class DependencyInjectionConfiguration
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IGameRepository, GameRepository>();
         services.AddScoped<IPromotionRepository, PromotionRepository>();
+        
+        
+        services.AddScoped<ISqlServerConnectionFactory, SqlServerConnectionFactory>();
 
 
         #endregion 

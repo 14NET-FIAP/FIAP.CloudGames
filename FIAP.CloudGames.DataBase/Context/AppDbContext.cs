@@ -1,6 +1,5 @@
 ﻿using FIAP.CloudGames.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using MongoDB.EntityFrameworkCore.Extensions;
 
 namespace FIAP.CloudGames.DataBase.Context;
 
@@ -11,17 +10,11 @@ public class AppDbContext : DbContext
     public DbSet<User> Users => Set<User>();
     public DbSet<Game> Game => Set<Game>();
     public DbSet<Promotion> Promotion => Set<Promotion>();
+    public DbSet<UserLibrary> UserLibrary => Set<UserLibrary>();
 
-
-
-    //protected override void OnModelCreating(ModelBuilder modelBuilder)
-    //{
-    //    modelBuilder.Entity<User>(e =>
-    //    {
-    //        e.ToCollection("Users");
-    //        e.HasKey(u => u.Id);
-    //    });
-
-
-    //}
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+    }
 }

@@ -1,17 +1,22 @@
+using Dapper;
 using FIAP.CloudGames.DataBase.Context;
 using FIAP.CloudGames.Domain.Entities;
 using FIAP.CloudGames.Domain.Repositories;
+using FIAP.CloudGames.Infra.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 namespace FIAP.CloudGames.DataBase.Repositories;
 
 public class PromotionRepository : IPromotionRepository
 {
     private readonly AppDbContext _context;
+    private readonly ISqlServerConnectionFactory _connectionFactory;
 
-    public PromotionRepository(AppDbContext context)
+    public PromotionRepository(AppDbContext context, ISqlServerConnectionFactory sqlServerConnectionFactory)
     {
         _context = context;
+        _connectionFactory = sqlServerConnectionFactory;
     }
 
     public void CreatePromotion(Promotion promotion)
@@ -34,13 +39,27 @@ public class PromotionRepository : IPromotionRepository
     {
         var ids = gameIds.ToList();
 
-        return await _context.Promotion
-            .AsNoTracking()
-            .Where(p => ids.Contains(p.GameId)
-                     && p.StartDate <= currentDate
-                     && p.EndDate >= currentDate
-                     && p.IsActive)
-            .ToListAsync(ct);
+        if (ids.Count == 0)
+            return Array.Empty<Promotion>();
+
+        const string sql = """
+        SELECT *
+        FROM Promotion
+        WHERE GameId IN @GameIds
+          AND StartDate <= @CurrentDate
+          AND EndDate >= @CurrentDate
+          AND IsActive = 1
+        """;
+
+        using IDbConnection connection = _connectionFactory.CreateConnection();
+
+        IEnumerable<Promotion> promotions = await connection.QueryAsync<Promotion>(
+            new CommandDefinition(
+                sql,
+                new { GameIds = ids, CurrentDate = currentDate },
+                cancellationToken: ct));
+
+        return promotions.ToList();
     }
 
     public void DesactivePromotion(Guid id)

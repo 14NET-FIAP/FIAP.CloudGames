@@ -5,15 +5,15 @@ namespace FIAP.CloudGames.Domain.Entities;
 
 public class User
 {
-    [Key]
     public Guid Id { get; private set; }
-    public string Name { get; set; }
-    public string Email { get; set; }
-    public string PasswordHash { get; set; }
-    public TypeUserEnum TypeUser { get; set; }
-    public List<OwnedGame> GamesLibrary { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public bool IsActive { get; set; }
+    public string Name { get; private set; } = string.Empty;
+    public string Email { get; private set; } = string.Empty;
+    public string PasswordHash { get; private set; } = string.Empty;
+    public TypeUserEnum TypeUser { get; private set; }
+    public DateTime CreatedAt { get; private set; }
+    public bool IsActive { get; private set; }
+
+    public ICollection<UserLibrary> UserLibraries { get; private set; } = new List<UserLibrary>();
 
     public User() { }
     public User(string name, string email, string password)
@@ -22,9 +22,9 @@ public class User
         Name = name;
         Email = email;
         PasswordHash = password;
-        TypeUser = TypeUserEnum.Admin;
+        TypeUser = TypeUserEnum.User;
         CreatedAt = DateTime.UtcNow;
-        GamesLibrary = new List<OwnedGame>();
+        //GamesLibrary = new List<UserLibrary>();
         IsActive = true;
     }
 }

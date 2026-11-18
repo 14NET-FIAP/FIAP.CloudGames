@@ -4,16 +4,21 @@ namespace FIAP.CloudGames.Domain.Entities;
 
 public class Game
 {
-    [Key]
     public Guid Id { get; set; }
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public decimal? Price { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public decimal Price { get; set; }
     public DateTime? ReleaseDate { get; set; }
     public DateTime CreatedAt { get; set; }
     public bool IsActive { get; set; }
 
-    public Game() { }
+
+    public ICollection<Promotion> Promotions { get; set; } = new List<Promotion>();
+    public ICollection<UserLibrary> UserLibraries { get; set; } = new List<UserLibrary>();
+
+
+    protected Game() { }
+
 
     public Game(string title, string description, decimal price, DateTime releaseDate)
     {

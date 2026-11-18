@@ -28,7 +28,7 @@ public static class GameMapping
             game.Id,
             game.Title,
             game.Description,
-            game.Price ?? 0m,
+            game.Price,
             priceWithDiscount,
             game.ReleaseDate!.Value
         );
@@ -36,13 +36,12 @@ public static class GameMapping
 
     public static Game MapGameToUpdate(UpdateGameDto gameDto, Guid id)
     {
-        return new Game
-        {
-            Id = id,
-            Title = gameDto.title!,             // null = "não alterar"
-            Description = gameDto.description!, // null = "não alterar"
-            Price = gameDto.price,
-            ReleaseDate = gameDto.releaseDate
-        };
+        return new Game(
+            id,
+            gameDto.title!, 
+            gameDto.description!,
+            gameDto.price.Value,
+            gameDto.releaseDate.Value
+        );
     }
 }

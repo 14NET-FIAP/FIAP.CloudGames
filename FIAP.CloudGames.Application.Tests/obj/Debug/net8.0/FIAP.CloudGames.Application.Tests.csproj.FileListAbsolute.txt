@@ -97,3 +97,4 @@ D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudG
 D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.Application.Tests\obj\Debug\net8.0\FIAP.CloudGames.Application.Tests.pdb
 D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.Application.Tests\obj\Debug\net8.0\FIAP.CloudGames.Application.Tests.genruntimeconfig.cache
 D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.Application.Tests\obj\Debug\net8.0\ref\FIAP.CloudGames.Application.Tests.dll
+D:\Aulas\PósTech - FIAP\Fase 1\TechChallenge\Backup\FIAP.CloudGames\FIAP.CloudGames.Application.Tests\obj\Debug\net8.0\FIAP.CloudGames.Application.Tests.sourcelink.json

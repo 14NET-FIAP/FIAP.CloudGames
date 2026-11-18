@@ -11,12 +11,17 @@ public static class ConnectionsConfiguration
     this IServiceCollection services,
     IConfiguration configuration)
     {
-        var mongoConnectionString = configuration["MongoDb:ConnectionString"];
-        var databaseName = configuration["MongoDb:DatabaseName"]!;
+        //var mongoConnectionString = configuration["MongoDb:ConnectionString"];
+        //var databaseName = configuration["MongoDb:DatabaseName"]!;
 
-        services.AddDbContext<AppDbContext>(options => options.UseMongoDB(mongoConnectionString, databaseName));
+        //services.AddDbContext<AppDbContext>(options => options.UseMongoDB(mongoConnectionString, databaseName));
 
-        //services.AddHealthChecks().AddMongoDb(mongoConnectionString!);
+        var connectionString = configuration.GetConnectionString("SqlServer")
+            ?? throw new InvalidOperationException("Connection string 'SqlServer' não encontrada.");
+
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure()));
+
 
         return services;
     }
