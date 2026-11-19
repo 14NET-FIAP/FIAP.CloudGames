@@ -1,18 +1,11 @@
 ﻿using Dapper;
-using FIAP.CloudGames.Application.Mappings;
 using FIAP.CloudGames.DataBase.Context;
 using FIAP.CloudGames.Domain.Entities;
 using FIAP.CloudGames.Domain.ReadModels;
 using FIAP.CloudGames.Domain.Repositories;
 using FIAP.CloudGames.Infra.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FIAP.CloudGames.DataBase.Repositories;
 
@@ -54,36 +47,41 @@ public class GameRepository : IGameRepository
         return games.ToList();
     }
 
-    public async Task<IReadOnlyList<GameListRow>> GetActiveGamesWithBestDiscountAsync(
-    DateTime now, int page, int pageSize, CancellationToken ct = default)
+    public async Task<IReadOnlyList<GameListRow>> GetActiveGamesWithBestDiscountAsync(CancellationToken ct = default)
     {
         const string sql = """
-        SELECT g.Id, g.Title, g.Price, g.ReleaseDate, g.Description,
-               p.DiscountPercentage
+        SELECT 
+            g.Id, 
+            g.Title, 
+            g.Description,
+            g.Price AS OriginalPrice, 
+            ROUND(
+                g.Price * (100.0 - ISNULL(p.DiscountPercentage, 0.0)) / 100.0, 
+                2
+            ) AS FinalPrice,
+            g.ReleaseDate
         FROM Game g
         OUTER APPLY (
-            SELECT TOP (1) pr.DiscountPercentage
+            SELECT MAX(pr.DiscountPercentage) AS DiscountPercentage
             FROM Promotion pr
             WHERE pr.GameId = g.Id
               AND pr.IsActive = 1
               AND pr.StartDate <= @Now
               AND pr.EndDate >= @Now
-            ORDER BY pr.DiscountPercentage DESC
         ) p
         WHERE g.IsActive = 1
-        ORDER BY g.Title
-        --OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY
+        ORDER BY g.Title;
         """;
 
         using IDbConnection connection = _connectionFactory.CreateConnection();
 
-        IEnumerable<GameListRow> rows = await connection.QueryAsync<GameListRow>(
+        var rows = await connection.QueryAsync<GameListRow>(
             new CommandDefinition(
                 sql,
-                new { Now = now, Offset = (page - 1) * pageSize, PageSize = pageSize },
+                new { Now = DateTime.UtcNow },
                 cancellationToken: ct));
 
-        return rows.ToList();
+        return rows.AsList(); // AsList() evita re-alocação se já for um List<T> retornado pelo Dapper
     }
 
     public Game? GetGameById(Guid id)
@@ -91,19 +89,29 @@ public class GameRepository : IGameRepository
         return _context.Game.FirstOrDefault(g => g.Id == id) ?? null;
     }
 
-    public void UpdateGame(Guid id, Game newGame)
+    public void UpdateGame(Guid Id, Game newGame)
     {
-        var game = _context.Game.FirstOrDefault(g => g.Id == id);
+        const string sql = @"
+        UPDATE Game
+        SET Title = COALESCE(@Title, Title),
+            Description = COALESCE(@Description, Description),
+            Price = @Price,
+            ReleaseDate = COALESCE(@ReleaseDate, ReleaseDate)
+        WHERE Id = @Id;";
 
-        if (game == null)
-            throw new KeyNotFoundException($"Game {id} not found.");
+        using IDbConnection connection = _connectionFactory.CreateConnection();
 
-        game.Title = newGame.Title ?? game.Title;
-        game.Description = newGame.Description ?? game.Description;
-        game.Price = newGame.Price;
-        game.ReleaseDate = newGame.ReleaseDate ?? game.ReleaseDate;
+        int rowsAffected = connection.Execute(sql, new
+        {
+            Id,
+            newGame.Title,
+            newGame.Description,
+            newGame.Price,
+            newGame.ReleaseDate
+        });
 
-        _context.SaveChanges();
+        if (rowsAffected == 0)
+            throw new KeyNotFoundException($"Game {Id} not found.");
     }
 
     public bool VerifyIfExist(string name, DateTime releaseDate) =>  _context.Game.Any(g => g.Title == name && g.ReleaseDate == releaseDate);

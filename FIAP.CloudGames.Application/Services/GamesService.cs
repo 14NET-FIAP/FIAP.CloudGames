@@ -2,6 +2,7 @@
 using FIAP.CloudGames.Application.Interfaces;
 using FIAP.CloudGames.Application.Mappings;
 using FIAP.CloudGames.Domain.Entities;
+using FIAP.CloudGames.Domain.ReadModels;
 using FIAP.CloudGames.Domain.Repositories;
 using FIAP.CloudGames.Domain.Services;
 
@@ -37,57 +38,24 @@ public class GamesService : IGamesService
 
     }
 
-    public async Task<ResultList<GamesListDto>> GetAllGamesAsync(CancellationToken ct = default)
+    public async Task<ResultList<GamesListDto>> GetAllActivesGamesAsync(CancellationToken ct = default)
     {
         try
         {
-            IReadOnlyList<Game> games = await _gameRepository.GetAllActivesGamesAsync(ct);
+            IReadOnlyList<GameListRow> games = await _gameRepository.GetActiveGamesWithBestDiscountAsync(ct);
 
-            if (games.Count == 0)
-                return ResultList<GamesListDto>.Success(new List<GamesListDto>());
+            if (games.Count == 0) return ResultList<GamesListDto>.Success();
 
-            DateTime currentDate = DateTime.UtcNow;
+            var dtos = new List<GamesListDto>(games.Count);
+            foreach (var game in games)
+                dtos.Add(game.MapGameToListDto());
 
-            IReadOnlyList<Promotion> promotions = await _promotionRepository
-                .GetActivePromotionsByGameIdsAsync(games.Select(g => g.Id), currentDate, ct);
-
-            Dictionary<Guid, Promotion> bestPromotionByGame = promotions
-                .GroupBy(p => p.GameId)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.MaxBy(p => p.DiscountPercentage)!);
-
-            List<GamesListDto> gameDtos = games
-                .Select(game =>
-                {
-                    decimal price = game.Price!;
-
-                    if (bestPromotionByGame.TryGetValue(game.Id, out Promotion? promotion))
-                    {
-                        price = CalculateDiscountedPrice(price, promotion.DiscountPercentage);
-                    }
-
-                    return game.MapGameToDatailDto(price);
-                })
-                .ToList();
-
-            return ResultList<GamesListDto>.Success(gameDtos);
+            return ResultList<GamesListDto>.Success(dtos);
         }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             return ResultList<GamesListDto>.Failure($"Não foi possível carregar os jogos: {ex.Message}");
         }
-    }
-
-
-    private static decimal CalculateDiscountedPrice(decimal price, decimal discountPercentage)
-    {
-        decimal safeDiscount = Math.Clamp(discountPercentage, 0m, 100m);
-        return Math.Round(price * (100m - safeDiscount) / 100m, 2, MidpointRounding.AwayFromZero);
     }
 
     public Result UpdateGame(UpdateGameDto gameDto, Guid id)

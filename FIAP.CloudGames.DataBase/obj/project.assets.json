@@ -3850,23 +3850,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ericb\\.nuget\\packages\\": {},
+    "C:\\Users\\egiannetti\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Aulas\\PósTech - FIAP\\Fase 1\\TechChallenge\\Backup\\FIAP.CloudGames\\FIAP.CloudGames.DataBase\\FIAP.CloudGames.DataBase.csproj",
+      "projectUniqueName": "C:\\Users\\egiannetti\\Documents\\projetos\\ms-eric-giannetti\\pp\\FIAP-CloudGames-backup\\FIAP.CloudGames.DataBase\\FIAP.CloudGames.DataBase.csproj",
       "projectName": "FIAP.CloudGames.DataBase",
-      "projectPath": "D:\\Aulas\\PósTech - FIAP\\Fase 1\\TechChallenge\\Backup\\FIAP.CloudGames\\FIAP.CloudGames.DataBase\\FIAP.CloudGames.DataBase.csproj",
-      "packagesPath": "C:\\Users\\ericb\\.nuget\\packages\\",
-      "outputPath": "D:\\Aulas\\PósTech - FIAP\\Fase 1\\TechChallenge\\Backup\\FIAP.CloudGames\\FIAP.CloudGames.DataBase\\obj\\",
+      "projectPath": "C:\\Users\\egiannetti\\Documents\\projetos\\ms-eric-giannetti\\pp\\FIAP-CloudGames-backup\\FIAP.CloudGames.DataBase\\FIAP.CloudGames.DataBase.csproj",
+      "packagesPath": "C:\\Users\\egiannetti\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\egiannetti\\Documents\\projetos\\ms-eric-giannetti\\pp\\FIAP-CloudGames-backup\\FIAP.CloudGames.DataBase\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\ericb\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\egiannetti\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -3876,17 +3876,19 @@
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "C:\\Program Files\\dotnet\\library-packs": {},
-        "https://api.nuget.org/v3/index.json": {}
+        "\\\\10.10.10.41\\tecnologia\\Sistemas\\Desenvolvimento\\Paths e Dicas\\DOTNET\\NuGet": {},
+        "https://api.nuget.org/v3/index.json": {},
+        "https://nuget.pkg.github.com/vidalink/index.json": {}
       },
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "D:\\Aulas\\PósTech - FIAP\\Fase 1\\TechChallenge\\Backup\\FIAP.CloudGames\\FIAP.CloudGames.Application\\FIAP.CloudGames.Application.csproj": {
-              "projectPath": "D:\\Aulas\\PósTech - FIAP\\Fase 1\\TechChallenge\\Backup\\FIAP.CloudGames\\FIAP.CloudGames.Application\\FIAP.CloudGames.Application.csproj"
+            "C:\\Users\\egiannetti\\Documents\\projetos\\ms-eric-giannetti\\pp\\FIAP-CloudGames-backup\\FIAP.CloudGames.Application\\FIAP.CloudGames.Application.csproj": {
+              "projectPath": "C:\\Users\\egiannetti\\Documents\\projetos\\ms-eric-giannetti\\pp\\FIAP-CloudGames-backup\\FIAP.CloudGames.Application\\FIAP.CloudGames.Application.csproj"
             },
-            "D:\\Aulas\\PósTech - FIAP\\Fase 1\\TechChallenge\\Backup\\FIAP.CloudGames\\FIAP.CloudGames.Domain\\FIAP.CloudGames.Domain.csproj": {
-              "projectPath": "D:\\Aulas\\PósTech - FIAP\\Fase 1\\TechChallenge\\Backup\\FIAP.CloudGames\\FIAP.CloudGames.Domain\\FIAP.CloudGames.Domain.csproj"
+            "C:\\Users\\egiannetti\\Documents\\projetos\\ms-eric-giannetti\\pp\\FIAP-CloudGames-backup\\FIAP.CloudGames.Domain\\FIAP.CloudGames.Domain.csproj": {
+              "projectPath": "C:\\Users\\egiannetti\\Documents\\projetos\\ms-eric-giannetti\\pp\\FIAP-CloudGames-backup\\FIAP.CloudGames.Domain\\FIAP.CloudGames.Domain.csproj"
             }
           }
         }
@@ -3948,7 +3950,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.302/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.308/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

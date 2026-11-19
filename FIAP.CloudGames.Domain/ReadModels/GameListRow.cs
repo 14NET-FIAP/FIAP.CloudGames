@@ -12,6 +12,6 @@ public sealed class GameListRow
     public string Title {get; set;}
     public string Description {get; set;}
     public decimal OriginalPrice {get; set;}
-    public decimal? PriceWithDiscount {get; set;}
+    public decimal FinalPrice { get; set;}
     public DateTime ReleaseDate {get; set;}
 }

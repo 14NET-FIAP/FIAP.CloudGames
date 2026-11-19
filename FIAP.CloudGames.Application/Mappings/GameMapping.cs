@@ -1,5 +1,6 @@
 ﻿using FIAP.CloudGames.Application.DTOs.Games;
 using FIAP.CloudGames.Domain.Entities;
+using FIAP.CloudGames.Domain.ReadModels;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,6 +32,18 @@ public static class GameMapping
             game.Price,
             priceWithDiscount,
             game.ReleaseDate!.Value
+        );
+    }
+
+    public static GamesListDto MapGameToListDto(this GameListRow game)
+    {
+        return new GamesListDto(
+            game.Id,
+            game.Title,
+            game.Description,
+            game.OriginalPrice,
+            game.FinalPrice,
+            game.ReleaseDate
         );
     }
 

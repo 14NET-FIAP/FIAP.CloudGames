@@ -20,7 +20,7 @@ public class GamesController : Controller
     [HttpGet]
     public async Task<IActionResult> Get(CancellationToken ct)
     {
-        ResultList<GamesListDto> result = await _gamesService.GetAllGamesAsync(ct);
+        ResultList<GamesListDto> result = await _gamesService.GetAllActivesGamesAsync(ct);
 
         if (!result.IsSuccess)
             return BadRequest(result);

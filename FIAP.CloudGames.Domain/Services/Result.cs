@@ -53,6 +53,7 @@ public class ResultList<T>
     }
 
     public static ResultList<T> Success(List<T> value) => new ResultList<T> { Value = value, IsSuccess = true, Message = null };
+    public static ResultList<T> Success() => new ResultList<T> { Value = new List<T>(), IsSuccess = true, Message = null };
     public static ResultList<T> Failure(string errorMessage) => new ResultList<T>
     { IsSuccess = false, Message = errorMessage, Value = new List<T>() };
 }

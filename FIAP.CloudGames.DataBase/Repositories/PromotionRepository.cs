@@ -34,7 +34,6 @@ public class PromotionRepository : IPromotionRepository
 
     public async Task<IReadOnlyList<Promotion>> GetActivePromotionsByGameIdsAsync(
     IEnumerable<Guid> gameIds,
-    DateTime currentDate,
     CancellationToken ct = default)
     {
         var ids = gameIds.ToList();
@@ -56,7 +55,7 @@ public class PromotionRepository : IPromotionRepository
         IEnumerable<Promotion> promotions = await connection.QueryAsync<Promotion>(
             new CommandDefinition(
                 sql,
-                new { GameIds = ids, CurrentDate = currentDate },
+                new { GameIds = ids, CurrentDate = DateTime.UtcNow },
                 cancellationToken: ct));
 
         return promotions.ToList();
