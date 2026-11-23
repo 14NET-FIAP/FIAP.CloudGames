@@ -5,7 +5,9 @@ using FIAP.CloudGames.Domain.ReadModels;
 using FIAP.CloudGames.Domain.Repositories;
 using FIAP.CloudGames.Infra.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Data;
+using System.Diagnostics;
 
 namespace FIAP.CloudGames.DataBase.Repositories;
 
@@ -13,10 +15,12 @@ public class GameRepository : IGameRepository
 {
     private readonly AppDbContext _context;
     private readonly ISqlServerConnectionFactory _connectionFactory;
-    public GameRepository(AppDbContext context, ISqlServerConnectionFactory sqlServerConnectionFactory)
+    private readonly ILogger<GameRepository> _logger;
+    public GameRepository(AppDbContext context, ISqlServerConnectionFactory sqlServerConnectionFactory, ILogger<GameRepository> logger)
     {
         _context = context;
         _connectionFactory = sqlServerConnectionFactory;
+        _logger = logger;
     }
 
     public void CreateGame(Game game)
@@ -40,11 +44,15 @@ public class GameRepository : IGameRepository
         """;
 
         using IDbConnection connection = _connectionFactory.CreateConnection();
+        long startTimestamp = Stopwatch.GetTimestamp();
 
         IEnumerable<Game> games = await connection.QueryAsync<Game>(
             new CommandDefinition(sql, cancellationToken: ct));
 
-        return games.ToList();
+        List<Game> activeGames = games.ToList();
+        LogDapperCommand(nameof(GetAllActivesGamesAsync), sql, activeGames.Count, startTimestamp);
+
+        return activeGames;
     }
 
     public async Task<IReadOnlyList<GameListRow>> GetActiveGamesWithBestDiscountAsync(CancellationToken ct = default)
@@ -74,6 +82,7 @@ public class GameRepository : IGameRepository
         """;
 
         using IDbConnection connection = _connectionFactory.CreateConnection();
+        long startTimestamp = Stopwatch.GetTimestamp();
 
         var rows = await connection.QueryAsync<GameListRow>(
             new CommandDefinition(
@@ -81,7 +90,10 @@ public class GameRepository : IGameRepository
                 new { Now = DateTime.UtcNow },
                 cancellationToken: ct));
 
-        return rows.AsList(); // AsList() evita re-alocação se já for um List<T> retornado pelo Dapper
+        List<GameListRow> gameRows = rows.AsList(); // AsList() evita re-alocação se já for um List<T> retornado pelo Dapper
+        LogDapperCommand(nameof(GetActiveGamesWithBestDiscountAsync), sql, gameRows.Count, startTimestamp);
+
+        return gameRows;
     }
 
     public Game? GetGameById(Guid id)
@@ -100,6 +112,7 @@ public class GameRepository : IGameRepository
         WHERE Id = @Id;";
 
         using IDbConnection connection = _connectionFactory.CreateConnection();
+        long startTimestamp = Stopwatch.GetTimestamp();
 
         int rowsAffected = connection.Execute(sql, new
         {
@@ -110,10 +123,21 @@ public class GameRepository : IGameRepository
             newGame.ReleaseDate
         });
 
+        LogDapperCommand(nameof(UpdateGame), sql, rowsAffected, startTimestamp);
+
         if (rowsAffected == 0)
             throw new KeyNotFoundException($"Game {Id} not found.");
     }
 
     public bool VerifyIfExist(string name, DateTime releaseDate) =>  _context.Game.Any(g => g.Title == name && g.ReleaseDate == releaseDate);
     public bool VerifyIfExist(Guid id) => _context.Game.Any(g => g.Id == id);
+
+    private void LogDapperCommand(string operation, string sql, int rowCount, long startTimestamp)
+    {
+        _logger.LogInformation("Dapper executou {Operation} em {ElapsedMilliseconds} ms ({RowCount} linhas). SQL: {Sql}",
+            operation,
+            Math.Round(Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds, 2),
+            rowCount,
+            sql);
+    }
 }

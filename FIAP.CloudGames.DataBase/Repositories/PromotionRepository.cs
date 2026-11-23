@@ -4,7 +4,9 @@ using FIAP.CloudGames.Domain.Entities;
 using FIAP.CloudGames.Domain.Repositories;
 using FIAP.CloudGames.Infra.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System.Data;
+using System.Diagnostics;
 
 namespace FIAP.CloudGames.DataBase.Repositories;
 
@@ -12,11 +14,13 @@ public class PromotionRepository : IPromotionRepository
 {
     private readonly AppDbContext _context;
     private readonly ISqlServerConnectionFactory _connectionFactory;
+    private readonly ILogger<PromotionRepository> _logger;
 
-    public PromotionRepository(AppDbContext context, ISqlServerConnectionFactory sqlServerConnectionFactory)
+    public PromotionRepository(AppDbContext context, ISqlServerConnectionFactory sqlServerConnectionFactory, ILogger<PromotionRepository> logger)
     {
         _context = context;
         _connectionFactory = sqlServerConnectionFactory;
+        _logger = logger;
     }
 
     public void CreatePromotion(Promotion promotion)
@@ -51,6 +55,7 @@ public class PromotionRepository : IPromotionRepository
         """;
 
         using IDbConnection connection = _connectionFactory.CreateConnection();
+        long startTimestamp = Stopwatch.GetTimestamp();
 
         IEnumerable<Promotion> promotions = await connection.QueryAsync<Promotion>(
             new CommandDefinition(
@@ -58,7 +63,10 @@ public class PromotionRepository : IPromotionRepository
                 new { GameIds = ids, CurrentDate = DateTime.UtcNow },
                 cancellationToken: ct));
 
-        return promotions.ToList();
+        List<Promotion> activePromotions = promotions.ToList();
+        LogDapperCommand(nameof(GetActivePromotionsByGameIdsAsync), sql, activePromotions.Count, startTimestamp);
+
+        return activePromotions;
     }
 
     public void DesactivePromotion(Guid id)
@@ -89,5 +97,14 @@ public class PromotionRepository : IPromotionRepository
     public bool VerifyIfExist(Guid id)
     {
         return _context.Promotion.Any(promotion => promotion.Id == id);
+    }
+
+    private void LogDapperCommand(string operation, string sql, int rowCount, long startTimestamp)
+    {
+        _logger.LogInformation("Dapper executou {Operation} em {ElapsedMilliseconds} ms ({RowCount} linhas). SQL: {Sql}",
+            operation,
+            Math.Round(Stopwatch.GetElapsedTime(startTimestamp).TotalMilliseconds, 2),
+            rowCount,
+            sql);
     }
 }

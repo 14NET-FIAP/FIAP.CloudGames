@@ -9,7 +9,7 @@ namespace FIAP.CloudGames.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [AllowAnonymous]
-public class UsersController : Controller
+public class UsersController : ControllerBase
 {
     private readonly IUsersService _usersService;
     public UsersController(IUsersService usersService) => _usersService = usersService;
@@ -25,38 +25,9 @@ public class UsersController : Controller
         return Created();
     }
 
-    //[HttpGet("getPersonalInfo")]
-    //[Authorize]
-    //public IActionResult GetPersonalInfo()
+    //[HttpPut]
+    //public IActionResult UpdateUser()
     //{
-    //    return Ok();
-    //}
 
-    //[HttpGet("{id}")]
-    //[IsAdmin]
-    //public IActionResult GetUserById(int id)
-    //{
-    //    return Ok();
-    //}
-
-    //[HttpGet("GetAllUsers")]
-    //[IsAdmin]
-    //public IActionResult GetAllUsers()
-    //{
-    //    return Ok();
-    //}
-
-    //[HttpPut("{id}")]
-    //[Authorize]
-    //public IActionResult UpdateUser(int id)
-    //{
-    //    return Ok();
-    //}
-
-    //[HttpDelete("{id}")]
-    //[IsAdmin]
-    //public IActionResult DeleteUser(int id)
-    //{
-    //    return Ok();
     //}
 }
