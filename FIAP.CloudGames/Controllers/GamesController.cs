@@ -22,18 +22,13 @@ public class GamesController : Controller
     {
         ResultList<GamesListDto> result = await _gamesService.GetAllActivesGamesAsync(ct);
 
-        if (!result.IsSuccess)
-            return BadRequest(result);
-
-        return Ok(result.Value);
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result);
     }
 
     [HttpGet("{id}")]
     public IActionResult GetById(Guid id)
     {
         //Result<GamesDatailDto> result = _gamesService.GetGameById(id);
-
-
         return Ok($"Game details for ID: {id}");
     }
 
@@ -43,10 +38,10 @@ public class GamesController : Controller
     {
         Result<Guid> result = _gamesService.CreateNewGame(gameDto);
 
-        if(!result.IsSuccess)
-            return BadRequest(result);
+        return result.IsSuccess 
+        ? Created($"api/games/{result.Value}", result.Value) 
+        : BadRequest(result);
 
-        return Created($"api/games/{result.Value}", result.Value);
     }
 
     [HttpPut("{id}")]
@@ -54,10 +49,7 @@ public class GamesController : Controller
     public IActionResult Update([FromBody] UpdateGameDto gameDto, Guid id)
     {
         Result result = _gamesService.UpdateGame(gameDto, id);
-
-        if(!result.IsSuccess)
-            return BadRequest(result);
-        return Ok();
+        return result.IsSuccess ? NoContent() : BadRequest(result);
     }
 
     [HttpDelete("{id}")]
