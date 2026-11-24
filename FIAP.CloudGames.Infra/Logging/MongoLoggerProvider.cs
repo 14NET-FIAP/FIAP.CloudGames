@@ -16,7 +16,6 @@ public sealed class MongoLoggerProvider : ILoggerProvider
 
     public ILogger CreateLogger(string categoryName)
     {
-        // Evita recursão: falhas do próprio writer não podem voltar para a fila do Mongo.
         if (categoryName == WriterCategoryName)
             return NullLogger.Instance;
 

@@ -46,15 +46,4 @@ public static class GameMapping
             game.ReleaseDate
         );
     }
-
-    public static Game MapGameToUpdate(UpdateGameDto gameDto, Guid id)
-    {
-        return new Game(
-            id,
-            gameDto.title!, 
-            gameDto.description!,
-            gameDto.price.Value,
-            gameDto.releaseDate.Value
-        );
-    }
 }

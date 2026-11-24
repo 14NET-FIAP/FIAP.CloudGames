@@ -31,6 +31,11 @@ public class Game
         IsActive = true;
     }
 
+    // MidpointRounding.AwayFromZero reproduz o ROUND do SQL Server usado na listagem de jogos,
+    // garantindo que o valor cobrado seja o mesmo exibido ao usuário.
+    public decimal CalculatePriceWithDiscount(decimal discountPercentage) =>
+        Math.Round(Price * (100 - discountPercentage) / 100, 2, MidpointRounding.AwayFromZero);
+
     public Game(Guid id, string title, string description, decimal price, DateTime releaseDate)
     {
         Id = id;

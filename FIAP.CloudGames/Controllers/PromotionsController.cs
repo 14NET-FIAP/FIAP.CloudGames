@@ -16,17 +16,17 @@ public class PromotionsController : Controller
     private readonly IPromotionService _promotionService;
     public PromotionsController(IPromotionService promotionService) => _promotionService = promotionService;
 
-    [HttpGet]
-    public IActionResult GetAllPromotions()
-    {
-        return Ok("Promotions list");
-    }
+    //[HttpGet]
+    //public IActionResult GetAllPromotions()
+    //{
+    //    return Ok("Promotions list");
+    //}
 
-    [HttpGet("{id}")]
-    public IActionResult GetPromotionById(int id)
-    {
-        return Ok($"Promotion details for ID: {id}");
-    }
+    //[HttpGet("{id}")]
+    //public IActionResult GetPromotionById(int id)
+    //{
+    //    return Ok($"Promotion details for ID: {id}");
+    //}
 
     [HttpPost]
     public IActionResult CreatePromotion([FromBody] CreatePromotionDto promotionDto)

@@ -20,4 +20,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\FIAP.CloudGames.Application\FIAP.CloudGames.Application.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -25,12 +25,12 @@ public class GamesController : Controller
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result);
     }
 
-    [HttpGet("{id}")]
-    public IActionResult GetById(Guid id)
-    {
-        //Result<GamesDatailDto> result = _gamesService.GetGameById(id);
-        return Ok($"Game details for ID: {id}");
-    }
+    //[HttpGet("{id}")]
+    //public IActionResult GetById(Guid id)
+    //{
+    //    //Result<GamesDatailDto> result = _gamesService.GetGameById(id);
+    //    return Ok($"Game details for ID: {id}");
+    //}
 
     [HttpPost]
     [IsAdmin]
@@ -52,10 +52,10 @@ public class GamesController : Controller
         return result.IsSuccess ? NoContent() : BadRequest(result);
     }
 
-    [HttpDelete("{id}")]
-    [IsAdmin]
-    public IActionResult Delete(int id)
-    {
-        return Ok();
-    }
+    //[HttpDelete("{id}")]
+    //[IsAdmin]
+    //public IActionResult Delete(int id)
+    //{
+    //    return Ok();
+    //}
 }

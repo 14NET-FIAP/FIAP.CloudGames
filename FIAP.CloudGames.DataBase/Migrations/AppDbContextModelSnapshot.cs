@@ -132,6 +132,9 @@ namespace FIAP.CloudGames.DataBase.Migrations
                     b.Property<DateTime>("AcquisitionDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<decimal>("PricePaid")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("UserId", "GameId");
 
                     b.HasIndex("GameId");

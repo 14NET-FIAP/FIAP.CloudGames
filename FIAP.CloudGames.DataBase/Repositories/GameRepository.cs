@@ -63,9 +63,12 @@ public class GameRepository : IGameRepository
             g.Title, 
             g.Description,
             g.Price AS OriginalPrice, 
-            ROUND(
-                g.Price * (100.0 - ISNULL(p.DiscountPercentage, 0.0)) / 100.0, 
-                2
+            -- ROUND não reduz a escala da expressão (vira decimal(x,9)); o CAST alinha ao tipo de Game.Price.
+            CAST(
+                ROUND(
+                    g.Price * (100.0 - ISNULL(p.DiscountPercentage, 0.0)) / 100.0,
+                    2
+                ) AS DECIMAL(18,2)
             ) AS FinalPrice,
             g.ReleaseDate
         FROM Game g
@@ -101,13 +104,13 @@ public class GameRepository : IGameRepository
         return _context.Game.FirstOrDefault(g => g.Id == id) ?? null;
     }
 
-    public void UpdateGame(Guid Id, Game newGame)
+    public void UpdateGame(Guid Id, string? title, string? description, decimal? price, DateTime? releaseDate)
     {
         const string sql = @"
         UPDATE Game
         SET Title = COALESCE(@Title, Title),
             Description = COALESCE(@Description, Description),
-            Price = @Price,
+            Price = COALESCE(@Price, Price),
             ReleaseDate = COALESCE(@ReleaseDate, ReleaseDate)
         WHERE Id = @Id;";
 
@@ -117,10 +120,10 @@ public class GameRepository : IGameRepository
         int rowsAffected = connection.Execute(sql, new
         {
             Id,
-            newGame.Title,
-            newGame.Description,
-            newGame.Price,
-            newGame.ReleaseDate
+            Title = title,
+            Description = description,
+            Price = price,
+            ReleaseDate = releaseDate
         });
 
         LogDapperCommand(nameof(UpdateGame), sql, rowsAffected, startTimestamp);

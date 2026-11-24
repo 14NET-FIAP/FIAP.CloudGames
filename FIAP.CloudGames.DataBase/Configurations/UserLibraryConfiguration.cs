@@ -11,6 +11,9 @@ public class UserLibraryConfiguration : IEntityTypeConfiguration<UserLibrary>
         // Chave primária composta
         builder.HasKey(ul => new { ul.UserId, ul.GameId });
 
+        builder.Property(ul => ul.PricePaid)
+               .HasColumnType("decimal(18,2)");
+
         builder.HasOne(ul => ul.User)
                .WithMany(u => u.UserLibraries)
                .HasForeignKey(ul => ul.UserId);

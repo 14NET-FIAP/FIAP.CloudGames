@@ -6,4 +6,6 @@ namespace FIAP.CloudGames.Application.Interfaces;
 public interface ILibraryService
 {
     public Task<ResultList<LibraryListGamesDto>> GetLibraryByUserId(string UserId, CancellationToken ct = default);
+    Task<Result> AddGameToLibraryAsync(string UserId, AddGameToLibraryDto libraryDto, CancellationToken ct = default);
+    Result RemoveGameFromLibrary(Guid userId, Guid gameId);
 }

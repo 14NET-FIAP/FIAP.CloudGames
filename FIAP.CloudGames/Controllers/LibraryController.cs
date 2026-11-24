@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using FIAP.CloudGames.Application.DTOs.Library;
 using FIAP.CloudGames.Application.Interfaces;
 using FIAP.CloudGames.Domain.Services;
-using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
 
 namespace FIAP.CloudGames.API.Controllers;
@@ -15,40 +14,53 @@ namespace FIAP.CloudGames.API.Controllers;
 public class LibraryController : Controller
 {
     private readonly ILibraryService _libraryService;
-    private readonly ActionExecutingContext _context;
-    public LibraryController(ILibraryService libraryService, ActionExecutingContext context)
+    public LibraryController(ILibraryService libraryService)
     {
         _libraryService = libraryService;
-        _context = context;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetPersonalLibrary()
+    public async Task<IActionResult> GetPersonalLibrary(CancellationToken ct)
     {
-        var userId = _context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        ResultList<LibraryListGamesDto> result = await _libraryService.GetLibraryByUserId(userId!);
-        
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        ResultList<LibraryListGamesDto> result = await _libraryService.GetLibraryByUserId(userId!, ct);
+
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result);
     }
 
     [HttpPost]
-    public IActionResult AddGameToLibrary()
+    public async Task<IActionResult> AddGameToPersonalLibrary([FromBody] AddGameToLibraryDto libraryDto, CancellationToken ct)
     {
-        return Ok();
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        Result result = await _libraryService.AddGameToLibraryAsync(userId!, libraryDto, ct);
+
+        return result.IsSuccess ? Created() : BadRequest(result);
+    }
+
+    [HttpPost("{id}")]
+    [IsAdmin]
+    public async Task<IActionResult> AddGameToLibrary(string id, [FromBody] AddGameToLibraryDto libraryDto, CancellationToken ct)
+    {
+        Result result = await _libraryService.AddGameToLibraryAsync(id, libraryDto, ct);
+
+        return result.IsSuccess ? Created() : BadRequest(result);
     }
 
     [HttpDelete("{gameId}/{userId}")]
     [IsAdmin]
-    public IActionResult UpdateGameToLibrary(Guid gameId, Guid userId)
+    public IActionResult RemoveGameFromLibrary(Guid gameId, Guid userId)
     {
-        return Ok();
+        Result result = _libraryService.RemoveGameFromLibrary(userId, gameId);
+
+        return result.IsSuccess ? NoContent() : BadRequest(result);
     }
 
     [HttpGet("{id}")]
     [IsAdmin]
-    public IActionResult GetLibraryByUserId(string id)
+    public async Task<IActionResult> GetLibraryByUserId(string id, CancellationToken ct)
     {
-        var result = _libraryService.GetLibraryByUserId(id);
-        return Ok();
+        ResultList<LibraryListGamesDto> result = await _libraryService.GetLibraryByUserId(id, ct);
+
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result);
     }
 }

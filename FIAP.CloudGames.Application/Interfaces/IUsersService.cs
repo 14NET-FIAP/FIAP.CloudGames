@@ -12,4 +12,8 @@ namespace FIAP.CloudGames.Application.Interfaces;
 public interface IUsersService
 {
     public Result CreateUser(CreateUserDto userDto);
+    Task<ResultList<UserDto>> GetAllUsersAsync(CancellationToken ct = default);
+    Result<UserDto> GetUserById(Guid id);
+    Result UpdateUser(Guid id, UpdateUserDto userDto);
+    Result DeactivateUser(Guid id);
 }

@@ -29,7 +29,7 @@ public class GamesService : IGamesService
                 return Result<Guid>.Failure("Game already exists.");
 
             _gameRepository.CreateGame(game);
-            return Result<Guid>.Success(new Guid());
+            return Result<Guid>.Success(game.Id);
         }
         catch (Exception ex)
         {
@@ -64,8 +64,7 @@ public class GamesService : IGamesService
         {
             if (!VerifyGameExists(id)) return Result.Failure("Game not found.");
 
-            var gameMapping = GameMapping.MapGameToUpdate(gameDto, id);
-            _gameRepository.UpdateGame(id, gameMapping);
+            _gameRepository.UpdateGame(id, gameDto.title, gameDto.description, gameDto.price, gameDto.releaseDate);
 
             return Result.Success();
         }

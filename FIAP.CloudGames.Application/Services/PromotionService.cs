@@ -4,15 +4,20 @@ using FIAP.CloudGames.Application.Mappings;
 using FIAP.CloudGames.Domain.Entities;
 using FIAP.CloudGames.Domain.Repositories;
 using FIAP.CloudGames.Domain.Services;
+using Microsoft.Extensions.Logging;
 
 namespace FIAP.CloudGames.Application.Services;
 
 public class PromotionService : IPromotionService
 {
+    private const string DesactivePromotionErrorMessage = "Não foi possível desativar a promoção.";
+
     private readonly IPromotionRepository _promotionRepository;
-    public PromotionService(IPromotionRepository promotionService)
+    private readonly ILogger<PromotionService> _logger;
+    public PromotionService(IPromotionRepository promotionService, ILogger<PromotionService> logger)
     {
         _promotionRepository = promotionService;
+        _logger = logger;
     }
 
     public Result CreatePromotion(CreatePromotionDto promotionDto)
@@ -40,8 +45,9 @@ public class PromotionService : IPromotionService
         catch (KeyNotFoundException){
             return Result.Failure($"Promoção com ID {id} não encontrada.");
         }
-        catch (Exception ex){
-            return Result.Failure($"Erro ao desativar promoção: {ex}");
+        catch (Exception ex) when (ex is not OperationCanceledException){
+            _logger.LogError(ex, "Erro ao desativar a promoção {PromotionId}", id);
+            return Result.Failure(DesactivePromotionErrorMessage);
         }
     }
 

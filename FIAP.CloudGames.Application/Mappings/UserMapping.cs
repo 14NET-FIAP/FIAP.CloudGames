@@ -1,6 +1,7 @@
 ﻿using FIAP.CloudGames.Application.DTOs.User;
 using FIAP.CloudGames.Application.Services.Context;
 using FIAP.CloudGames.Domain.Entities;
+using FIAP.CloudGames.Domain.ReadModels;
 using FIAP.CloudGames.Infra.Security;
 using System;
 using System.Collections.Generic;
@@ -18,6 +19,28 @@ public static class UserMapping
             userDto.Name,
             userDto.Email,
             SecurityHelper.HashPassword(userDto.Password)
+        );
+    }
+
+    public static UserDto MapUserToDto(this User user)
+    {
+        return new UserDto(
+            user.Id,
+            user.Name,
+            user.Email,
+            user.TypeUser,
+            user.CreatedAt
+        );
+    }
+
+    public static UserDto MapUserRowToDto(this UserListRow user)
+    {
+        return new UserDto(
+            user.Id,
+            user.Name,
+            user.Email,
+            user.TypeUser,
+            user.CreatedAt
         );
     }
 
