@@ -1,4 +1,5 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using FIAP.CloudGames.API.Middlewares;
+using Microsoft.OpenApi.Models;
 using System.Text.Json.Serialization;
 
 namespace FIAP.CloudGames.API.Config;
@@ -16,6 +17,12 @@ public static class ControllerConfiguration
             {
                 opt.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
                 opt.JsonSerializerOptions.WriteIndented = true;
+            })
+            .ConfigureApiBehaviorOptions(opt =>
+            {
+                // Sem corpo ProblemDetails automático: o ExceptionHandlingMiddleware preenche esses status com ErrorResult.
+                opt.SuppressMapClientErrors = true;
+                opt.InvalidModelStateResponseFactory = InvalidModelStateResponseFactory.Create;
             });
 
         return services;

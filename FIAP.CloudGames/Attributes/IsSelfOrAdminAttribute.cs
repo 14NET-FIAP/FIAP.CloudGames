@@ -1,3 +1,5 @@
+using FIAP.CloudGames.API.Extensions;
+using FIAP.CloudGames.API.Middlewares;
 using FIAP.CloudGames.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -9,6 +11,7 @@ namespace FIAP.CloudGames.API.Attributes;
 public class IsSelfOrAdminAttribute : ActionFilterAttribute
 {
     private const string UserIdRouteKey = "id";
+    private const string SelfOrAdminOnlyMessage = "Apenas o próprio usuário ou Administradores podem executar essa função";
 
     public override void OnActionExecuting(ActionExecutingContext context)
     {
@@ -20,10 +23,7 @@ public class IsSelfOrAdminAttribute : ActionFilterAttribute
             return;
         }
 
-        context.Result = new ObjectResult(new { message = "Apenas o próprio usuário ou Administradores podem executar essa função" })
-        {
-            StatusCode = StatusCodes.Status403Forbidden
-        };
+        context.Result = CreateForbiddenResult(context.HttpContext);
     }
 
     private static bool IsAdmin(ClaimsPrincipal user) =>
@@ -34,4 +34,19 @@ public class IsSelfOrAdminAttribute : ActionFilterAttribute
         Guid.TryParse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value, out Guid tokenUserId)
         && Guid.TryParse(routeUserId, out Guid requestedUserId)
         && tokenUserId == requestedUserId;
+
+    private static ObjectResult CreateForbiddenResult(HttpContext httpContext)
+    {
+        string traceId = httpContext.GetTraceId();
+
+        // Atributos de filtro não recebem DI pelo construtor; o logger vem do escopo da requisição.
+        httpContext.RequestServices.GetRequiredService<ILogger<IsSelfOrAdminAttribute>>()
+            .LogWarning("Acesso negado em {Method} {Path}: usuário não é o dono do recurso nem Administrador. TraceId: {TraceId}",
+                httpContext.Request.Method, httpContext.Request.Path, traceId);
+
+        return new ObjectResult(ErrorResult.Failure(SelfOrAdminOnlyMessage, traceId))
+        {
+            StatusCode = StatusCodes.Status403Forbidden
+        };
+    }
 }
