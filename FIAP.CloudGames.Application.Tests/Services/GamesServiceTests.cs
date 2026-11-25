@@ -40,14 +40,12 @@ public class GamesServiceTests
     }
 
     [Fact]
-    public void CreateNewGame_WhenRepositoryThrows_ReturnsFailure()
+    public void CreateNewGame_WhenRepositoryThrows_PropagatesException()
     {
         _gameRepository.ExceptionToThrow = new InvalidOperationException("falha no banco");
 
-        var result = _service.CreateNewGame(new CreateGameDto("Hollow Knight", "Metroidvania", 49.90m, ReleaseDate));
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal(Guid.Empty, result.Value);
+        Assert.Throws<InvalidOperationException>(
+            () => _service.CreateNewGame(new CreateGameDto("Hollow Knight", "Metroidvania", 49.90m, ReleaseDate)));
     }
 
     [Fact]
@@ -95,12 +93,11 @@ public class GamesServiceTests
     }
 
     [Fact]
-    public void UpdateGame_WhenRepositoryThrows_ReturnsFailure()
+    public void UpdateGame_WhenRepositoryThrows_PropagatesException()
     {
         _gameRepository.ExceptionToThrow = new KeyNotFoundException("not found");
 
-        var result = _service.UpdateGame(new UpdateGameDto(null, "Título", null, null, null), Guid.NewGuid());
-
-        Assert.False(result.IsSuccess);
+        Assert.Throws<KeyNotFoundException>(
+            () => _service.UpdateGame(new UpdateGameDto(null, "Título", null, null, null), Guid.NewGuid()));
     }
 }

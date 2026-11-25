@@ -1,6 +1,5 @@
 using FIAP.CloudGames.Application.Services;
 using FIAP.CloudGames.Application.Tests.Fakes;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace FIAP.CloudGames.Application.Tests.Services;
 
@@ -11,7 +10,7 @@ public class PromotionServiceTests
 
     public PromotionServiceTests()
     {
-        _service = new PromotionService(_promotionRepository, NullLogger<PromotionService>.Instance);
+        _service = new PromotionService(_promotionRepository);
     }
 
     [Fact]
@@ -38,17 +37,11 @@ public class PromotionServiceTests
     }
 
     [Fact]
-    public void DesactivePromotion_WhenUnexpectedErrorOccurs_DoesNotExposeExceptionDetails()
+    public void DesactivePromotion_WhenUnexpectedErrorOccurs_PropagatesException()
     {
-        var exception = new InvalidOperationException("Deadlock na tabela Promotion");
-        _promotionRepository.ExceptionToThrowOnDesactive = exception;
+        _promotionRepository.ExceptionToThrowOnDesactive = new InvalidOperationException("Deadlock na tabela Promotion");
 
-        var result = _service.DesactivePromotion(Guid.NewGuid());
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal("Não foi possível desativar a promoção.", result.Message);
-        Assert.DoesNotContain(exception.Message, result.Message);
-        Assert.DoesNotContain(nameof(InvalidOperationException), result.Message);
+        Assert.Throws<InvalidOperationException>(() => _service.DesactivePromotion(Guid.NewGuid()));
     }
 
     [Fact]

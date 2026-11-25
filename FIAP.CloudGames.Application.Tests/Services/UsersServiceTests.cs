@@ -72,14 +72,11 @@ public class UsersServiceTests
     }
 
     [Fact]
-    public void CreateUser_WhenUnexpectedErrorOccurs_ReturnsGenericFailureWithoutTechnicalDetail()
+    public void CreateUser_WhenUnexpectedErrorOccurs_PropagatesException()
     {
         _userRepository.ExceptionToThrowOnCreate = new InvalidOperationException(TechnicalErrorDetail);
 
-        var result = _service.CreateUser(ValidUser);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal("Não foi possível cadastrar o usuário.", result.Message);
+        Assert.Throws<InvalidOperationException>(() => _service.CreateUser(ValidUser));
     }
 
     [Fact]
@@ -122,14 +119,11 @@ public class UsersServiceTests
     }
 
     [Fact]
-    public async Task GetAllUsersAsync_WhenRepositoryThrows_ReturnsGenericFailure()
+    public async Task GetAllUsersAsync_WhenRepositoryThrows_PropagatesException()
     {
         _userRepository.ExceptionToThrowOnRead = new InvalidOperationException(TechnicalErrorDetail);
 
-        var result = await _service.GetAllUsersAsync();
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal("Não foi possível carregar os usuários.", result.Message);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => _service.GetAllUsersAsync());
     }
 
     [Fact]
@@ -161,14 +155,11 @@ public class UsersServiceTests
     }
 
     [Fact]
-    public void GetUserById_WhenRepositoryThrows_ReturnsGenericFailure()
+    public void GetUserById_WhenRepositoryThrows_PropagatesException()
     {
         _userRepository.ExceptionToThrowOnRead = new InvalidOperationException(TechnicalErrorDetail);
 
-        var result = _service.GetUserById(Guid.NewGuid());
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal("Não foi possível carregar o usuário.", result.Message);
+        Assert.Throws<InvalidOperationException>(() => _service.GetUserById(Guid.NewGuid()));
     }
 
     [Fact]
@@ -249,15 +240,12 @@ public class UsersServiceTests
     }
 
     [Fact]
-    public void UpdateUser_WhenUnexpectedErrorOccurs_ReturnsGenericFailure()
+    public void UpdateUser_WhenUnexpectedErrorOccurs_PropagatesException()
     {
         User user = CreateExistingUser();
         _userRepository.ExceptionToThrowOnUpdate = new InvalidOperationException(TechnicalErrorDetail);
 
-        var result = _service.UpdateUser(user.Id, new UpdateUserDto("Maria", null, null));
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal("Não foi possível atualizar o usuário.", result.Message);
+        Assert.Throws<InvalidOperationException>(() => _service.UpdateUser(user.Id, new UpdateUserDto("Maria", null, null)));
     }
 
     [Fact]
@@ -292,15 +280,12 @@ public class UsersServiceTests
     }
 
     [Fact]
-    public void DeactivateUser_WhenUnexpectedErrorOccurs_ReturnsGenericFailure()
+    public void DeactivateUser_WhenUnexpectedErrorOccurs_PropagatesException()
     {
         User user = CreateExistingUser();
         _userRepository.ExceptionToThrowOnUpdate = new InvalidOperationException(TechnicalErrorDetail);
 
-        var result = _service.DeactivateUser(user.Id);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal("Não foi possível desativar o usuário.", result.Message);
+        Assert.Throws<InvalidOperationException>(() => _service.DeactivateUser(user.Id));
     }
 
     private User CreateExistingUser()

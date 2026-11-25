@@ -45,7 +45,6 @@ public class ExceptionHandlingMiddleware
         }
         catch (Exception exception) when (context.Response.HasStarted)
         {
-            // Com a resposta já enviada não há como trocar status/corpo; registra aqui e deixa o servidor abortar a conexão.
             _logger.LogError(exception, "Erro após o início da resposta em {Method} {Path}. TraceId: {TraceId}",
                 context.Request.Method, context.Request.Path, context.GetTraceId());
             throw;

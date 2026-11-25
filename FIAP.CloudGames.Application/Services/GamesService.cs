@@ -21,64 +21,42 @@ public class GamesService : IGamesService
 
     public Result<Guid> CreateNewGame(CreateGameDto gameDto)
     {
-        try
-        {
-            Game game = GameMapping.MapGameToCreate(gameDto);
+        Game game = GameMapping.MapGameToCreate(gameDto);
 
-            if (VerifyGameExists(game.Title, game.ReleaseDate!.Value))
-                return Result<Guid>.Failure("Game already exists.");
+        if (VerifyGameExists(game.Title, game.ReleaseDate!.Value))
+            return Result<Guid>.Failure("Game already exists.");
 
-            _gameRepository.CreateGame(game);
-            return Result<Guid>.Success(game.Id);
-        }
-        catch (Exception ex)
-        {
-            return Result<Guid>.Failure($"An error occurred while creating the game: {ex.Message}");
-        }
-
+        _gameRepository.CreateGame(game);
+        return Result<Guid>.Success(game.Id);
     }
 
     public async Task<ResultList<GamesListDto>> GetAllActivesGamesAsync(CancellationToken ct = default)
     {
-        try
-        {
-            IReadOnlyList<GameListRow> games = await _gameRepository.GetActiveGamesWithBestDiscountAsync(ct);
+        IReadOnlyList<GameListRow> games = await _gameRepository.GetActiveGamesWithBestDiscountAsync(ct);
 
-            if (games.Count == 0) return ResultList<GamesListDto>.Success();
+        if (games.Count == 0) return ResultList<GamesListDto>.Success();
 
-            var dtos = new List<GamesListDto>(games.Count);
-            foreach (var game in games)
-                dtos.Add(game.MapGameToListDto());
+        var dtos = new List<GamesListDto>(games.Count);
+        foreach (var game in games)
+            dtos.Add(game.MapGameToListDto());
 
-            return ResultList<GamesListDto>.Success(dtos);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            return ResultList<GamesListDto>.Failure($"Não foi possível carregar os jogos: {ex.Message}");
-        }
+        return ResultList<GamesListDto>.Success(dtos);
     }
 
     public Result UpdateGame(UpdateGameDto gameDto, Guid id)
     {
-        try
-        {
-            if (!VerifyGameExists(id)) return Result.Failure("Game not found.");
+        if (!VerifyGameExists(id)) return Result.Failure("Game not found.");
 
-            _gameRepository.UpdateGame(id, gameDto.title, gameDto.description, gameDto.price, gameDto.releaseDate);
+        _gameRepository.UpdateGame(id, gameDto.title, gameDto.description, gameDto.price, gameDto.releaseDate);
 
-            return Result.Success();
-        }
-        catch (Exception ex)
-        {
-            return Result.Failure($"An error occurred while updating the game: {ex.Message}");
-        }
+        return Result.Success();
     }
 
     private bool VerifyGameExists(string name, DateTime releaseDate) => _gameRepository.VerifyIfExist(name, releaseDate);
     private bool VerifyGameExists(Guid id) => _gameRepository.VerifyIfExist(id);
 
-    public ResultList<GamesListDto> GetAllGames()
-    {
-        throw new NotImplementedException();
-    }
+    //public ResultList<GamesListDto> GetAllGames()
+    //{
+    //    throw new NotImplementedException();
+    //}
 }

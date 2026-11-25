@@ -86,8 +86,7 @@ public class LibraryRepository : ILibraryRepository
         return removedRows > 0;
     }
 
-    public bool VerifyIfExist(Guid userId, Guid gameId) =>
-        _context.UserLibrary.Any(ul => ul.UserId == userId && ul.GameId == gameId);
+    public bool VerifyIfExist(Guid userId, Guid gameId) => _context.UserLibrary.Any(ul => ul.UserId == userId && ul.GameId == gameId);
 
     private static bool IsPrimaryKeyViolation(DbUpdateException exception) =>
         exception.InnerException is SqlException { Number: SqlServerPrimaryKeyViolation };

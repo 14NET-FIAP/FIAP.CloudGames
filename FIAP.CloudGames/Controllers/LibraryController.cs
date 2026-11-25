@@ -13,17 +13,23 @@ namespace FIAP.CloudGames.API.Controllers;
 [Authorize]
 public class LibraryController : Controller
 {
+    private const string InvalidUserIdMessage = "Identificador de usuário inválido.";
+
     private readonly ILibraryService _libraryService;
-    public LibraryController(ILibraryService libraryService)
+    private readonly ILogger<LibraryController> _logger;
+    public LibraryController(ILibraryService libraryService, ILogger<LibraryController> logger)
     {
         _libraryService = libraryService;
+        _logger = logger;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetPersonalLibrary(CancellationToken ct)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        ResultList<LibraryListGamesDto> result = await _libraryService.GetLibraryByUserId(userId!, ct);
+        if (!TryGetAuthenticatedUserId(out Guid userId))
+            return InvalidUserIdResult();
+
+        ResultList<LibraryListGamesDto> result = await _libraryService.GetLibraryByUserId(userId, ct);
 
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result);
     }
@@ -31,15 +37,17 @@ public class LibraryController : Controller
     [HttpPost]
     public async Task<IActionResult> AddGameToPersonalLibrary([FromBody] AddGameToLibraryDto libraryDto, CancellationToken ct)
     {
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        Result result = await _libraryService.AddGameToLibraryAsync(userId!, libraryDto, ct);
+        if (!TryGetAuthenticatedUserId(out Guid userId))
+            return InvalidUserIdResult();
+
+        Result result = await _libraryService.AddGameToLibraryAsync(userId, libraryDto, ct);
 
         return result.IsSuccess ? Created() : BadRequest(result);
     }
 
     [HttpPost("{id}")]
     [IsAdmin]
-    public async Task<IActionResult> AddGameToLibrary(string id, [FromBody] AddGameToLibraryDto libraryDto, CancellationToken ct)
+    public async Task<IActionResult> AddGameToLibrary(Guid id, [FromBody] AddGameToLibraryDto libraryDto, CancellationToken ct)
     {
         Result result = await _libraryService.AddGameToLibraryAsync(id, libraryDto, ct);
 
@@ -57,10 +65,21 @@ public class LibraryController : Controller
 
     [HttpGet("{id}")]
     [IsAdmin]
-    public async Task<IActionResult> GetLibraryByUserId(string id, CancellationToken ct)
+    public async Task<IActionResult> GetLibraryByUserId(Guid id, CancellationToken ct)
     {
         ResultList<LibraryListGamesDto> result = await _libraryService.GetLibraryByUserId(id, ct);
 
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result);
+    }
+
+    private bool TryGetAuthenticatedUserId(out Guid userId) =>
+        Guid.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out userId);
+
+    private BadRequestObjectResult InvalidUserIdResult()
+    {
+        // O token é emitido pela própria API; claim ausente/inválida indica token adulterado ou de outra versão.
+        _logger.LogWarning("Requisição {Method} {Path} recusada: claim de identificador de usuário ausente ou inválida",
+            Request.Method, Request.Path);
+        return BadRequest(Result.Failure(InvalidUserIdMessage));
     }
 }

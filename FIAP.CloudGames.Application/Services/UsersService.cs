@@ -21,11 +21,6 @@ public class UsersService : IUsersService
     private const string UserAlreadyExistsMessage = "Usuário já cadastrado no sistema";
     private const string EmailInUseMessage = "O e-mail informado já está em uso por outro usuário.";
     private const string UserNotFoundMessage = "Usuário não encontrado.";
-    private const string CreateUserErrorMessage = "Não foi possível cadastrar o usuário.";
-    private const string ListUsersErrorMessage = "Não foi possível carregar os usuários.";
-    private const string GetUserErrorMessage = "Não foi possível carregar o usuário.";
-    private const string UpdateUserErrorMessage = "Não foi possível atualizar o usuário.";
-    private const string DeactivateUserErrorMessage = "Não foi possível desativar o usuário.";
 
     private readonly IUserRepository _usersRepository;
     private readonly ILogger<UsersService> _logger;
@@ -58,47 +53,26 @@ public class UsersService : IUsersService
             _logger.LogWarning("Cadastro de usuário rejeitado pelo índice único de e-mail (cadastro concorrente)");
             return Result.Failure(UserAlreadyExistsMessage);
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex, "Erro ao cadastrar usuário");
-            return Result.Failure(CreateUserErrorMessage);
-        }
     }
 
     public async Task<ResultList<UserDto>> GetAllUsersAsync(CancellationToken ct = default)
     {
-        try
-        {
-            IReadOnlyList<UserListRow> users = await _usersRepository.GetAllActiveUsersAsync(ct);
+        IReadOnlyList<UserListRow> users = await _usersRepository.GetAllActiveUsersAsync(ct);
 
-            var dtos = new List<UserDto>(users.Count);
-            foreach (var user in users)
-                dtos.Add(user.MapUserRowToDto());
+        var dtos = new List<UserDto>(users.Count);
+        foreach (var user in users)
+            dtos.Add(user.MapUserRowToDto());
 
-            return ResultList<UserDto>.Success(dtos);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex, "Erro ao listar usuários");
-            return ResultList<UserDto>.Failure(ListUsersErrorMessage);
-        }
+        return ResultList<UserDto>.Success(dtos);
     }
 
     public Result<UserDto> GetUserById(Guid id)
     {
-        try
-        {
-            User? user = _usersRepository.GetActiveUserById(id);
-            if (user is null)
-                return Result<UserDto>.Failure(UserNotFoundMessage);
+        User? user = _usersRepository.GetActiveUserById(id);
+        if (user is null)
+            return Result<UserDto>.Failure(UserNotFoundMessage);
 
-            return Result<UserDto>.Success(user.MapUserToDto());
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex, "Erro ao buscar o usuário {UserId}", id);
-            return Result<UserDto>.Failure(GetUserErrorMessage);
-        }
+        return Result<UserDto>.Success(user.MapUserToDto());
     }
 
     public Result UpdateUser(Guid id, UpdateUserDto userDto)
@@ -129,32 +103,19 @@ public class UsersService : IUsersService
             _logger.LogWarning("Atualização do usuário {UserId} rejeitada pelo índice único de e-mail (alteração concorrente)", id);
             return Result.Failure(EmailInUseMessage);
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex, "Erro ao atualizar o usuário {UserId}", id);
-            return Result.Failure(UpdateUserErrorMessage);
-        }
     }
 
     public Result DeactivateUser(Guid id)
     {
-        try
-        {
-            User? user = _usersRepository.GetActiveUserById(id);
-            if (user is null)
-                return Result.Failure(UserNotFoundMessage);
+        User? user = _usersRepository.GetActiveUserById(id);
+        if (user is null)
+            return Result.Failure(UserNotFoundMessage);
 
-            user.Deactivate();
-            _usersRepository.UpdateUser(user);
+        user.Deactivate();
+        _usersRepository.UpdateUser(user);
 
-            _logger.LogInformation("Usuário {UserId} desativado", id);
-            return Result.Success();
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogError(ex, "Erro ao desativar o usuário {UserId}", id);
-            return Result.Failure(DeactivateUserErrorMessage);
-        }
+        _logger.LogInformation("Usuário {UserId} desativado", id);
+        return Result.Success();
     }
 
     private bool VerifyIfExist(string email) => _usersRepository.VerifyIfExist(email);

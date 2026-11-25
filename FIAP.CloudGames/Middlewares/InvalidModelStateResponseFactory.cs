@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace FIAP.CloudGames.API.Middlewares;
 
-// Não é estática porque o tipo é usado como categoria do ILogger<T> (allow-list do Mongo).
 public class InvalidModelStateResponseFactory
 {
     private const string ErrorMessageSeparator = "; ";
@@ -16,7 +15,6 @@ public class InvalidModelStateResponseFactory
         string traceId = httpContext.GetTraceId();
         string message = BuildMessage(context.ModelState);
 
-        // O delegate do ApiBehaviorOptions não recebe DI; o logger vem do escopo da requisição.
         ILogger<InvalidModelStateResponseFactory> logger =
             httpContext.RequestServices.GetRequiredService<ILogger<InvalidModelStateResponseFactory>>();
 

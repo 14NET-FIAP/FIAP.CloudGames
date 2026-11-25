@@ -39,7 +39,7 @@ public class LibraryServiceTests
         var row = new UserLibraryItemRow(Guid.NewGuid(), "Celeste", "Plataforma", 36.99m, new DateTime(2018, 1, 25), new DateTime(2025, 3, 1));
         _libraryRepository.Rows = [row];
 
-        var result = await _service.GetLibraryByUserId(userId.ToString());
+        var result = await _service.GetLibraryByUserId(userId);
 
         Assert.True(result.IsSuccess);
         var dto = Assert.Single(result.Value);
@@ -55,7 +55,7 @@ public class LibraryServiceTests
     [Fact]
     public async Task GetLibraryByUserId_WhenLibraryIsEmpty_ReturnsEmptySuccess()
     {
-        var result = await _service.GetLibraryByUserId(Guid.NewGuid().ToString());
+        var result = await _service.GetLibraryByUserId(Guid.NewGuid());
 
         Assert.True(result.IsSuccess);
         Assert.Empty(result.Value);
@@ -66,35 +66,18 @@ public class LibraryServiceTests
     {
         using var cancellationSource = new CancellationTokenSource();
 
-        await _service.GetLibraryByUserId(Guid.NewGuid().ToString(), cancellationSource.Token);
+        await _service.GetLibraryByUserId(Guid.NewGuid(), cancellationSource.Token);
 
         Assert.Equal(cancellationSource.Token, _libraryRepository.RequestedToken);
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("   ")]
-    [InlineData("não-é-um-guid")]
-    public async Task GetLibraryByUserId_WithInvalidId_ReturnsFailureWithoutQueryingRepository(string? invalidUserId)
-    {
-        var result = await _service.GetLibraryByUserId(invalidUserId!);
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal("Identificador de usuário inválido.", result.Message);
-        Assert.Equal(0, _libraryRepository.CallCount);
-    }
-
     [Fact]
-    public async Task GetLibraryByUserId_WhenRepositoryThrows_ReturnsGenericFailureWithoutTechnicalDetail()
+    public async Task GetLibraryByUserId_WhenRepositoryThrows_PropagatesException()
     {
         _libraryRepository.ExceptionToThrow = new InvalidOperationException(TechnicalErrorDetail);
 
-        var result = await _service.GetLibraryByUserId(Guid.NewGuid().ToString());
-
-        Assert.False(result.IsSuccess);
-        Assert.Empty(result.Value);
-        Assert.DoesNotContain(TechnicalErrorDetail, result.Message);
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _service.GetLibraryByUserId(Guid.NewGuid()));
     }
 
     [Fact]
@@ -103,7 +86,7 @@ public class LibraryServiceTests
         _libraryRepository.ExceptionToThrow = new OperationCanceledException();
 
         await Assert.ThrowsAsync<OperationCanceledException>(
-            () => _service.GetLibraryByUserId(Guid.NewGuid().ToString()));
+            () => _service.GetLibraryByUserId(Guid.NewGuid()));
     }
 
     [Fact]
@@ -112,7 +95,7 @@ public class LibraryServiceTests
         User user = CreateActiveUser();
         Game game = CreateActiveGame(price: 100m);
 
-        var result = await _service.AddGameToLibraryAsync(user.Id.ToString(), new AddGameToLibraryDto(game.Id));
+        var result = await _service.AddGameToLibraryAsync(user.Id, new AddGameToLibraryDto(game.Id));
 
         Assert.True(result.IsSuccess);
         UserLibrary added = Assert.IsType<UserLibrary>(_libraryRepository.AddedItem);
@@ -132,7 +115,7 @@ public class LibraryServiceTests
             new Promotion(25m, DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1), game.Id)
         ];
 
-        var result = await _service.AddGameToLibraryAsync(user.Id.ToString(), new AddGameToLibraryDto(game.Id));
+        var result = await _service.AddGameToLibraryAsync(user.Id, new AddGameToLibraryDto(game.Id));
 
         Assert.True(result.IsSuccess);
         Assert.Equal(44.93m, _libraryRepository.AddedItem!.PricePaid);
@@ -145,22 +128,9 @@ public class LibraryServiceTests
         Game game = CreateActiveGame(price: 100m);
         using var cancellationSource = new CancellationTokenSource();
 
-        await _service.AddGameToLibraryAsync(user.Id.ToString(), new AddGameToLibraryDto(game.Id), cancellationSource.Token);
+        await _service.AddGameToLibraryAsync(user.Id, new AddGameToLibraryDto(game.Id), cancellationSource.Token);
 
         Assert.Equal(cancellationSource.Token, _promotionRepository.RequestedPromotionsToken);
-    }
-
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("não-é-um-guid")]
-    public async Task AddGameToLibraryAsync_WithInvalidUserId_ReturnsFailureWithoutAdding(string? invalidUserId)
-    {
-        var result = await _service.AddGameToLibraryAsync(invalidUserId!, new AddGameToLibraryDto(Guid.NewGuid()));
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal("Identificador de usuário inválido.", result.Message);
-        Assert.Null(_libraryRepository.AddedItem);
     }
 
     [Fact]
@@ -168,7 +138,7 @@ public class LibraryServiceTests
     {
         Game game = CreateActiveGame(price: 100m);
 
-        var result = await _service.AddGameToLibraryAsync(Guid.NewGuid().ToString(), new AddGameToLibraryDto(game.Id));
+        var result = await _service.AddGameToLibraryAsync(Guid.NewGuid(), new AddGameToLibraryDto(game.Id));
 
         Assert.False(result.IsSuccess);
         Assert.Equal(UserNotFoundMessage, result.Message);
@@ -180,7 +150,7 @@ public class LibraryServiceTests
     {
         User user = CreateActiveUser();
 
-        var result = await _service.AddGameToLibraryAsync(user.Id.ToString(), new AddGameToLibraryDto(Guid.NewGuid()));
+        var result = await _service.AddGameToLibraryAsync(user.Id, new AddGameToLibraryDto(Guid.NewGuid()));
 
         Assert.False(result.IsSuccess);
         Assert.Equal(GameUnavailableMessage, result.Message);
@@ -194,7 +164,7 @@ public class LibraryServiceTests
         Game game = CreateActiveGame(price: 100m);
         game.IsActive = false;
 
-        var result = await _service.AddGameToLibraryAsync(user.Id.ToString(), new AddGameToLibraryDto(game.Id));
+        var result = await _service.AddGameToLibraryAsync(user.Id, new AddGameToLibraryDto(game.Id));
 
         Assert.False(result.IsSuccess);
         Assert.Equal(GameUnavailableMessage, result.Message);
@@ -208,7 +178,7 @@ public class LibraryServiceTests
         Game game = CreateActiveGame(price: 100m);
         _libraryRepository.GameAlreadyInLibrary = true;
 
-        var result = await _service.AddGameToLibraryAsync(user.Id.ToString(), new AddGameToLibraryDto(game.Id));
+        var result = await _service.AddGameToLibraryAsync(user.Id, new AddGameToLibraryDto(game.Id));
 
         Assert.False(result.IsSuccess);
         Assert.Equal(GameAlreadyInLibraryMessage, result.Message);
@@ -223,23 +193,21 @@ public class LibraryServiceTests
         _libraryRepository.ExceptionToThrowOnWrite =
             new DuplicateEntityException(GameAlreadyInLibraryMessage, new Exception("2627"));
 
-        var result = await _service.AddGameToLibraryAsync(user.Id.ToString(), new AddGameToLibraryDto(game.Id));
+        var result = await _service.AddGameToLibraryAsync(user.Id, new AddGameToLibraryDto(game.Id));
 
         Assert.False(result.IsSuccess);
         Assert.Equal(GameAlreadyInLibraryMessage, result.Message);
     }
 
     [Fact]
-    public async Task AddGameToLibraryAsync_WhenUnexpectedErrorOccurs_ReturnsGenericFailureWithoutTechnicalDetail()
+    public async Task AddGameToLibraryAsync_WhenUnexpectedErrorOccurs_PropagatesException()
     {
         User user = CreateActiveUser();
         Game game = CreateActiveGame(price: 100m);
         _libraryRepository.ExceptionToThrowOnWrite = new InvalidOperationException(TechnicalErrorDetail);
 
-        var result = await _service.AddGameToLibraryAsync(user.Id.ToString(), new AddGameToLibraryDto(game.Id));
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal("Não foi possível adicionar o jogo à biblioteca.", result.Message);
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () => _service.AddGameToLibraryAsync(user.Id, new AddGameToLibraryDto(game.Id)));
     }
 
     [Fact]
@@ -250,7 +218,7 @@ public class LibraryServiceTests
         _libraryRepository.ExceptionToThrowOnWrite = new OperationCanceledException();
 
         await Assert.ThrowsAsync<OperationCanceledException>(
-            () => _service.AddGameToLibraryAsync(user.Id.ToString(), new AddGameToLibraryDto(game.Id)));
+            () => _service.AddGameToLibraryAsync(user.Id, new AddGameToLibraryDto(game.Id)));
     }
 
     [Fact]
@@ -277,14 +245,11 @@ public class LibraryServiceTests
     }
 
     [Fact]
-    public void RemoveGameFromLibrary_WhenUnexpectedErrorOccurs_ReturnsGenericFailure()
+    public void RemoveGameFromLibrary_WhenUnexpectedErrorOccurs_PropagatesException()
     {
         _libraryRepository.ExceptionToThrowOnWrite = new InvalidOperationException(TechnicalErrorDetail);
 
-        var result = _service.RemoveGameFromLibrary(Guid.NewGuid(), Guid.NewGuid());
-
-        Assert.False(result.IsSuccess);
-        Assert.Equal("Não foi possível remover o jogo da biblioteca.", result.Message);
+        Assert.Throws<InvalidOperationException>(() => _service.RemoveGameFromLibrary(Guid.NewGuid(), Guid.NewGuid()));
     }
 
     [Fact]
