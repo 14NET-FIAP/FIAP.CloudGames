@@ -46,17 +46,17 @@ public class GamesService : IGamesService
     public Result UpdateGame(UpdateGameDto gameDto, Guid id)
     {
         if (!VerifyGameExists(id)) return Result.Failure("Game not found.");
-
         _gameRepository.UpdateGame(id, gameDto.title, gameDto.description, gameDto.price, gameDto.releaseDate);
+        return Result.Success();
+    }
 
+    public Result DeleteGame(Guid id)
+    {
+        if (!VerifyGameExists(id)) return Result.Failure("Game not found.");
+        _gameRepository.DeleteGame(id);
         return Result.Success();
     }
 
     private bool VerifyGameExists(string name, DateTime releaseDate) => _gameRepository.VerifyIfExist(name, releaseDate);
     private bool VerifyGameExists(Guid id) => _gameRepository.VerifyIfExist(id);
-
-    //public ResultList<GamesListDto> GetAllGames()
-    //{
-    //    throw new NotImplementedException();
-    //}
 }

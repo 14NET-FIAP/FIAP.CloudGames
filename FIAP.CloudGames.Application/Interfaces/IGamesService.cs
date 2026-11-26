@@ -10,4 +10,5 @@ public interface IGamesService
     Result UpdateGame(UpdateGameDto gameDto, Guid id);
     Task<ResultList<GamesListDto>> GetAllActivesGamesAsync(CancellationToken ct = default);
     //ResultList<GamesListDto> GetAllGames();
+    Result DeleteGame(Guid id);
 }

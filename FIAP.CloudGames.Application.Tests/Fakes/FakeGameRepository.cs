@@ -39,6 +39,7 @@ public sealed class FakeGameRepository : IGameRepository
     public Task<IReadOnlyList<GameListRow>> GetActiveGamesWithBestDiscountAsync(CancellationToken ct = default) => throw new NotSupportedException();
 
     public Game? GetGameById(Guid id) => GameById?.Id == id ? GameById : null;
+    public void DeleteGame(Guid id) => throw new NotSupportedException();
 
     private void ThrowIfConfigured()
     {

@@ -1,5 +1,4 @@
 ﻿using FIAP.CloudGames.Application.DTOs.User;
-using FIAP.CloudGames.Application.Services.Context;
 using FIAP.CloudGames.Domain.Entities;
 using FIAP.CloudGames.Domain.ReadModels;
 using FIAP.CloudGames.Infra.Security;

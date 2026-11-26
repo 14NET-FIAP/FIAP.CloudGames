@@ -104,6 +104,11 @@ public class GameRepository : IGameRepository
         return _context.Game.FirstOrDefault(g => g.Id == id) ?? null;
     }
 
+    public void DeleteGame(Guid id)
+    {
+        _context.Game.Where(g => g.Id == id).ExecuteUpdate(s => s.SetProperty(g => g.IsActive, false));
+    }
+
     public void UpdateGame(Guid Id, string? title, string? description, decimal? price, DateTime? releaseDate)
     {
         const string sql = @"

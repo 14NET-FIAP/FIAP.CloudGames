@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using FIAP.CloudGames.Domain.ReadModels;
 
 namespace FIAP.CloudGames.Infra.Security;
 
@@ -25,7 +26,7 @@ public static class SecurityHelper
     }
 
 
-    public static string GenerateJwtToken(IUserContextService userData, IConfiguration configuration)
+    public static string GenerateJwtToken(UserContextService userData, IConfiguration configuration)
     {
         DateTime expires = DateTime.Now.AddDays(Convert.ToDouble(configuration["Jwt:ExpirationInDays"]));
 
