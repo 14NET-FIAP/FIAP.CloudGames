@@ -2,6 +2,7 @@
 using FIAP.CloudGames.Application.Interfaces;
 using FIAP.CloudGames.Application.Mappings;
 using FIAP.CloudGames.Domain.Entities;
+using FIAP.CloudGames.Domain.ReadModels;
 using FIAP.CloudGames.Domain.Repositories;
 using FIAP.CloudGames.Domain.Services;
 
@@ -13,6 +14,17 @@ public class PromotionService : IPromotionService
     public PromotionService(IPromotionRepository promotionService)
     {
         _promotionRepository = promotionService;
+    }
+
+    public async Task<ResultList<PromotionListDto>> GetAllPromotionsAsync(CancellationToken ct = default)
+    {
+        IReadOnlyList<PromotionListRow> promotions = await _promotionRepository.GetAllPromotionsAsync(ct);
+
+        var dtos = new List<PromotionListDto>(promotions.Count);
+        foreach (var promotion in promotions)
+            dtos.Add(promotion.MapPromotionRowToDto());
+
+        return ResultList<PromotionListDto>.Success(dtos);
     }
 
     public Result CreatePromotion(CreatePromotionDto promotionDto)

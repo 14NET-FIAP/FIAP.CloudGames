@@ -11,7 +11,7 @@ namespace FIAP.CloudGames.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class GamesController : Controller
+public class GamesController : ControllerBase
 {
     private readonly IGamesService _gamesService;
     public GamesController(IGamesService gamesService) => _gamesService = gamesService;

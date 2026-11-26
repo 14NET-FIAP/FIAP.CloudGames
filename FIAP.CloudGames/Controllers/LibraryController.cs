@@ -11,7 +11,7 @@ namespace FIAP.CloudGames.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class LibraryController : Controller
+public class LibraryController : ControllerBase
 {
     private const string InvalidUserIdMessage = "Identificador de usuário inválido.";
 

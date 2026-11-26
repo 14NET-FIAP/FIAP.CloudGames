@@ -1,6 +1,7 @@
 using Dapper;
 using FIAP.CloudGames.DataBase.Context;
 using FIAP.CloudGames.Domain.Entities;
+using FIAP.CloudGames.Domain.ReadModels;
 using FIAP.CloudGames.Domain.Repositories;
 using FIAP.CloudGames.Infra.Data;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +28,33 @@ public class PromotionRepository : IPromotionRepository
     {
         _context.Promotion.Add(promotion);
         _context.SaveChanges();
+    }
+
+    public async Task<IReadOnlyList<PromotionListRow>> GetAllPromotionsAsync(CancellationToken ct = default)
+    {
+        const string sql = """
+        SELECT
+            Id,
+            GameId,
+            DiscountPercentage,
+            StartDate,
+            EndDate,
+            IsActive,
+            CreatedAt
+        FROM Promotion
+        ORDER BY IsActive DESC, CreatedAt DESC;
+        """;
+
+        using IDbConnection connection = _connectionFactory.CreateConnection();
+        long startTimestamp = Stopwatch.GetTimestamp();
+
+        IEnumerable<PromotionListRow> promotions = await connection.QueryAsync<PromotionListRow>(
+            new CommandDefinition(sql, cancellationToken: ct));
+
+        List<PromotionListRow> promotionRows = promotions.AsList();
+        LogDapperCommand(nameof(GetAllPromotionsAsync), sql, promotionRows.Count, startTimestamp);
+
+        return promotionRows;
     }
 
     public IEnumerable<Promotion> GetActivePromotions(DateTime currentDate)

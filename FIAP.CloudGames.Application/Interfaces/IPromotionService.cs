@@ -10,6 +10,7 @@ namespace FIAP.CloudGames.Application.Interfaces;
 
 public interface IPromotionService
 {
+    Task<ResultList<PromotionListDto>> GetAllPromotionsAsync(CancellationToken ct = default);
     Result CreatePromotion(CreatePromotionDto promotionDto);
     Result DesactivePromotion(Guid id);
     Result UpdatePromotion(Guid id, UpdatePromotionDto dto);

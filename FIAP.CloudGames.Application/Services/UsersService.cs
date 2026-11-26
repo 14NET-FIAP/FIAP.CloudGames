@@ -99,7 +99,6 @@ public class UsersService : IUsersService
         }
         catch (DuplicateEntityException)
         {
-            // Outra requisição gravou o mesmo e-mail entre a verificação e o update.
             _logger.LogWarning("Atualização do usuário {UserId} rejeitada pelo índice único de e-mail (alteração concorrente)", id);
             return Result.Failure(EmailInUseMessage);
         }

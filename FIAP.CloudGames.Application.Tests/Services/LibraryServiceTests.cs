@@ -122,6 +122,34 @@ public class LibraryServiceTests
     }
 
     [Fact]
+    public async Task AddGameToLibraryAsync_WithInformedPricePaid_StoresInformedPriceIgnoringPromotions()
+    {
+        User user = CreateActiveUser();
+        Game game = CreateActiveGame(price: 100m);
+        _promotionRepository.ActivePromotions =
+        [
+            new Promotion(50m, DateTime.UtcNow.AddDays(-1), DateTime.UtcNow.AddDays(1), game.Id)
+        ];
+
+        var result = await _service.AddGameToLibraryAsync(user.Id, new AddGameToLibraryDto(game.Id, 80m));
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(80m, _libraryRepository.AddedItem!.PricePaid);
+    }
+
+    [Fact]
+    public async Task AddGameToLibraryAsync_WithInformedPricePaidZero_StoresZero()
+    {
+        User user = CreateActiveUser();
+        Game game = CreateActiveGame(price: 100m);
+
+        var result = await _service.AddGameToLibraryAsync(user.Id, new AddGameToLibraryDto(game.Id, 0m));
+
+        Assert.True(result.IsSuccess);
+        Assert.Equal(0m, _libraryRepository.AddedItem!.PricePaid);
+    }
+
+    [Fact]
     public async Task AddGameToLibraryAsync_ForwardsCancellationToken()
     {
         User user = CreateActiveUser();

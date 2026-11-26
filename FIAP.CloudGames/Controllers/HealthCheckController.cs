@@ -3,7 +3,7 @@
 namespace FIAP.CloudGames.API.Controllers;
 
 [ApiController]
-public class HealthCheckController : Controller
+public class HealthCheckController : ControllerBase
 {
     [HttpGet("/health")]
     public IActionResult HealthCheck()

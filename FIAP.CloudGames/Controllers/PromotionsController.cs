@@ -11,16 +11,18 @@ namespace FIAP.CloudGames.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [IsAdmin]
-public class PromotionsController : Controller
+public class PromotionsController : ControllerBase
 {
     private readonly IPromotionService _promotionService;
     public PromotionsController(IPromotionService promotionService) => _promotionService = promotionService;
 
-    //[HttpGet]
-    //public IActionResult GetAllPromotions()
-    //{
-    //    return Ok("Promotions list");
-    //}
+    [HttpGet]
+    public async Task<IActionResult> GetAllPromotions(CancellationToken ct)
+    {
+        ResultList<PromotionListDto> result = await _promotionService.GetAllPromotionsAsync(ct);
+
+        return result.IsSuccess ? Ok(result.Value) : BadRequest(result);
+    }
 
     //[HttpGet("{id}")]
     //public IActionResult GetPromotionById(int id)

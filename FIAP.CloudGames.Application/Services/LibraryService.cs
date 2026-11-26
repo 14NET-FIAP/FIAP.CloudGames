@@ -65,7 +65,7 @@ public class LibraryService : ILibraryService
             if (_libraryRepository.VerifyIfExist(userId, gameId))
                 return Result.Failure(GameAlreadyInLibraryMessage);
 
-            decimal pricePaid = game.CalculatePriceWithDiscount(await GetBestActiveDiscountAsync(gameId, ct));
+            decimal pricePaid = libraryDto.PricePaid ?? await CalculateCurrentPriceAsync(game, ct);
             _libraryRepository.AddGameToLibrary(new UserLibrary(userId, gameId, pricePaid));
 
             _logger.LogInformation("Jogo {GameId} adicionado à biblioteca do usuário {UserId} por {PricePaid}", gameId, userId, pricePaid);
@@ -85,6 +85,14 @@ public class LibraryService : ILibraryService
 
         _logger.LogInformation("Jogo {GameId} removido da biblioteca do usuário {UserId}", gameId, userId);
         return Result.Success();
+    }
+
+    private async Task<decimal> CalculateCurrentPriceAsync(Game game, CancellationToken ct)
+    {
+        decimal pricePaid = game.CalculatePriceWithDiscount(await GetBestActiveDiscountAsync(game.Id, ct));
+
+        _logger.LogDebug("Preço pago não informado para o jogo {GameId}; calculado com o maior desconto ativo: {PricePaid}", game.Id, pricePaid);
+        return pricePaid;
     }
 
     private async Task<decimal> GetBestActiveDiscountAsync(Guid gameId, CancellationToken ct)
