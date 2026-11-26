@@ -12,8 +12,8 @@ namespace FIAP.CloudGames.Application.Services;
 
 public class GamesService : IGamesService
 {
-    private const string GameAlreadyExistsMessage = "Game already exists.";
-    private const string GameNotFoundMessage = "Game not found.";
+    private const string GameAlreadyExistsMessage = "Jogo já cadastrado.";
+    private const string GameNotFoundMessage = "Jogo não encontrado.";
 
     private readonly IGameRepository _gameRepository;
     private readonly IPromotionRepository _promotionRepository;

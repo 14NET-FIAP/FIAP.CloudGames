@@ -43,9 +43,9 @@ public static class UserMapping
         );
     }
 
-    public static UserContextService MapUserToJWT(this User user)
+    public static JwtUserClaims MapUserToJWT(this User user)
     {
-        return new UserContextService(
+        return new JwtUserClaims(
             user.Id,
             user.TypeUser
         );

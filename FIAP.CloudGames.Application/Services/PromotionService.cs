@@ -13,13 +13,16 @@ namespace FIAP.CloudGames.Application.Services;
 public class PromotionService : IPromotionService
 {
     private const string PromotionNotFoundMessage = "Promoção não encontrada.";
+    private const string GameNotFoundMessage = "Jogo não encontrado.";
 
     private readonly IPromotionRepository _promotionRepository;
+    private readonly IGameRepository _gameRepository;
     private readonly ILogger<PromotionService> _logger;
 
-    public PromotionService(IPromotionRepository promotionService, ILogger<PromotionService> logger)
+    public PromotionService(IPromotionRepository promotionService, IGameRepository gameRepository, ILogger<PromotionService> logger)
     {
         _promotionRepository = promotionService;
+        _gameRepository = gameRepository;
         _logger = logger;
     }
 
@@ -69,6 +72,10 @@ public class PromotionService : IPromotionService
             Promotion? promotion = _promotionRepository.GetPromotionById(id);
             if (promotion is null)
                 return Result.Failure(PromotionNotFoundMessage);
+
+            // Sem esta checagem, um GameId inexistente só falharia na FK do banco (500).
+            if (!_gameRepository.VerifyIfExist(dto.GameId))
+                return Result.Failure(GameNotFoundMessage);
 
             promotion.Update(dto.DiscountPercentage, dto.StartDate, dto.EndDate, dto.GameId);
             _promotionRepository.UpdatePromotion(promotion);
