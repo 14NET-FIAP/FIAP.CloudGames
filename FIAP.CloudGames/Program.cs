@@ -14,8 +14,7 @@ builder.Services.AddMongoDbLogging(builder.Configuration);
 
 var app = builder.Build();
 
-app.UseMiddleware<RequestLoggingMiddleware>();
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseApiMiddlewares();
 
 if (app.Environment.IsDevelopment())
 {

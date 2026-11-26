@@ -87,8 +87,6 @@ public class ExceptionHandlingMiddleware
         int statusCode = context.Response.StatusCode;
 
         LogErrorResponseWithoutBody(context, statusCode, traceId);
-
-        // Sem Response.Clear(): preserva headers como WWW-Authenticate (401) e Allow (405).
         await WriteErrorResultAsync(context.Response, MapStatusCodeToMessage(statusCode), traceId);
     }
 

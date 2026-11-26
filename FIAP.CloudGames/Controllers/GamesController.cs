@@ -52,10 +52,11 @@ public class GamesController : Controller
         return result.IsSuccess ? NoContent() : BadRequest(result);
     }
 
-    //[HttpDelete("{id}")]
-    //[IsAdmin]
-    //public IActionResult Delete(int id)
-    //{
-    //    return Ok();
-    //}
+    [HttpDelete("{id}")]
+    [IsAdmin]
+    public IActionResult Delete(Guid id)
+    {
+        Result result = _gamesService.DeleteGame(id);
+        return result.IsSuccess ? NoContent() : BadRequest(result);
+    }
 }
