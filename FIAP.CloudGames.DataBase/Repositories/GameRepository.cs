@@ -4,7 +4,6 @@ using FIAP.CloudGames.Domain.Entities;
 using FIAP.CloudGames.Domain.ReadModels;
 using FIAP.CloudGames.Domain.Repositories;
 using FIAP.CloudGames.Infra.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Diagnostics;
@@ -104,37 +103,10 @@ public class GameRepository : IGameRepository
         return _context.Game.FirstOrDefault(g => g.Id == id) ?? null;
     }
 
-    public void DeleteGame(Guid id)
+    public void UpdateGame(Game game)
     {
-        _context.Game.Where(g => g.Id == id).ExecuteUpdate(s => s.SetProperty(g => g.IsActive, false));
-    }
-
-    public void UpdateGame(Guid Id, string? title, string? description, decimal? price, DateTime? releaseDate)
-    {
-        const string sql = @"
-        UPDATE Game
-        SET Title = COALESCE(@Title, Title),
-            Description = COALESCE(@Description, Description),
-            Price = COALESCE(@Price, Price),
-            ReleaseDate = COALESCE(@ReleaseDate, ReleaseDate)
-        WHERE Id = @Id;";
-
-        using IDbConnection connection = _connectionFactory.CreateConnection();
-        long startTimestamp = Stopwatch.GetTimestamp();
-
-        int rowsAffected = connection.Execute(sql, new
-        {
-            Id,
-            Title = title,
-            Description = description,
-            Price = price,
-            ReleaseDate = releaseDate
-        });
-
-        LogDapperCommand(nameof(UpdateGame), sql, rowsAffected, startTimestamp);
-
-        if (rowsAffected == 0)
-            throw new KeyNotFoundException($"Game {Id} not found.");
+        _context.Game.Update(game);
+        _context.SaveChanges();
     }
 
     public bool VerifyIfExist(string name, DateTime releaseDate) =>  _context.Game.Any(g => g.Title == name && g.ReleaseDate == releaseDate);

@@ -97,28 +97,14 @@ public class PromotionRepository : IPromotionRepository
         return activePromotions;
     }
 
-    public void DesactivePromotion(Guid id)
+    public Promotion? GetPromotionById(Guid id)
     {
-        var promotion = _context.Promotion.FirstOrDefault(p => p.Id == id);
-        if (promotion == null)
-            throw new KeyNotFoundException($"Promotion {id} not found.");
-        promotion.IsActive = false;
-        _context.SaveChanges();
+        return _context.Promotion.FirstOrDefault(p => p.Id == id);
     }
 
-    public void UpdateAsync(Promotion updatedPromotion)
+    public void UpdatePromotion(Promotion promotion)
     {
-        var existingPromotion = _context.Promotion.FirstOrDefault(p => p.Id == updatedPromotion.Id);
-        if (existingPromotion == null)
-            throw new KeyNotFoundException($"Promotion {updatedPromotion.Id} not found.");
-       
-        
-        existingPromotion.DiscountPercentage = updatedPromotion.DiscountPercentage;
-        existingPromotion.StartDate = updatedPromotion.StartDate;
-        existingPromotion.EndDate = updatedPromotion.EndDate;
-        existingPromotion.GameId = updatedPromotion.GameId;
-
-
+        _context.Promotion.Update(promotion);
         _context.SaveChanges();
     }
 

@@ -2,18 +2,25 @@
 using FIAP.CloudGames.Application.Interfaces;
 using FIAP.CloudGames.Application.Mappings;
 using FIAP.CloudGames.Domain.Entities;
+using FIAP.CloudGames.Domain.Exceptions;
 using FIAP.CloudGames.Domain.ReadModels;
 using FIAP.CloudGames.Domain.Repositories;
 using FIAP.CloudGames.Domain.Services;
+using Microsoft.Extensions.Logging;
 
 namespace FIAP.CloudGames.Application.Services;
 
 public class PromotionService : IPromotionService
 {
+    private const string PromotionNotFoundMessage = "Promoção não encontrada.";
+
     private readonly IPromotionRepository _promotionRepository;
-    public PromotionService(IPromotionRepository promotionService)
+    private readonly ILogger<PromotionService> _logger;
+
+    public PromotionService(IPromotionRepository promotionService, ILogger<PromotionService> logger)
     {
         _promotionRepository = promotionService;
+        _logger = logger;
     }
 
     public async Task<ResultList<PromotionListDto>> GetAllPromotionsAsync(CancellationToken ct = default)
@@ -29,36 +36,49 @@ public class PromotionService : IPromotionService
 
     public Result CreatePromotion(CreatePromotionDto promotionDto)
     {
-        Promotion promotion = PromotionMapping.MapPromotionToCreate(promotionDto);
-        _promotionRepository.CreatePromotion(promotion);
+        try
+        {
+            Promotion promotion = PromotionMapping.MapPromotionToCreate(promotionDto);
+            _promotionRepository.CreatePromotion(promotion);
 
-        return Result.Success();
+            return Result.Success();
+        }
+        catch (DomainException ex)
+        {
+            return Result.Failure(ex.Message);
+        }
     }
 
     public Result DesactivePromotion(Guid id)
     {
-        try
-        {
-            _promotionRepository.DesactivePromotion(id);
-            return Result.Success();
-        }
-        catch (KeyNotFoundException){
+        Promotion? promotion = _promotionRepository.GetPromotionById(id);
+        if (promotion is null)
             return Result.Failure($"Promoção com ID {id} não encontrada.");
-        }
+
+        promotion.Deactivate();
+        _promotionRepository.UpdatePromotion(promotion);
+
+        _logger.LogInformation("Promoção {PromotionId} desativada", id);
+        return Result.Success();
     }
 
     public Result UpdatePromotion(Guid id, UpdatePromotionDto dto)
     {
-        if (!VerifyPromotionExists(id))
-            return Result.Failure("Promoção não encontrada.");
+        try
+        {
+            Promotion? promotion = _promotionRepository.GetPromotionById(id);
+            if (promotion is null)
+                return Result.Failure(PromotionNotFoundMessage);
 
-        var updatedPromotion = PromotionMapping.MapPromotionToUpdate(dto, id);
+            promotion.Update(dto.DiscountPercentage, dto.StartDate, dto.EndDate, dto.GameId);
+            _promotionRepository.UpdatePromotion(promotion);
 
-        _promotionRepository.UpdateAsync(updatedPromotion);
-
-        return Result.Success();
+            _logger.LogInformation("Promoção {PromotionId} atualizada", id);
+            return Result.Success();
+        }
+        catch (DomainException ex)
+        {
+            return Result.Failure(ex.Message);
+        }
     }
-
-    private bool VerifyPromotionExists(Guid id) => _promotionRepository.VerifyIfExist(id);
-
 }

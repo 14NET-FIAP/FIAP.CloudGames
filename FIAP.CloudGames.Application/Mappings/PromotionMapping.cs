@@ -33,15 +33,4 @@ public static class PromotionMapping
             promotion.CreatedAt
         );
     }
-
-    public static Promotion MapPromotionToUpdate(this UpdatePromotionDto promotionDto, Guid id)
-    {
-        return new Promotion{
-            Id = id,
-            DiscountPercentage = promotionDto.DiscountPercentage,
-            StartDate = promotionDto.StartDate,
-            EndDate = promotionDto.EndDate,
-            GameId = promotionDto.GameId
-        };
-    }
 }

@@ -1,4 +1,5 @@
 ﻿using FIAP.CloudGames.Domain.Entities;
+using FIAP.CloudGames.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,5 +17,17 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasIndex(u => u.Email)
                .IsUnique();
+
+        // Objeto anônimo porque User só tem setters privados e o construtor público força TypeUser = User.
+        builder.HasData(new
+        {
+            AdminUserSeed.Id,
+            AdminUserSeed.Name,
+            AdminUserSeed.Email,
+            AdminUserSeed.PasswordHash,
+            TypeUser = TypeUserEnum.Admin,
+            AdminUserSeed.CreatedAt,
+            IsActive = true
+        });
     }
 }

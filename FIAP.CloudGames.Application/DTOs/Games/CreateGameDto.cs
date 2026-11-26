@@ -1,4 +1,5 @@
-﻿using FIAP.CloudGames.Domain.Exceptions;
+﻿using FIAP.CloudGames.Domain.Entities;
+using FIAP.CloudGames.Domain.Exceptions;
 using FIAP.CloudGames.Domain.ValueObjects;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ public record CreateGameDto(
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (string.IsNullOrWhiteSpace(title))
-            yield return new ValidationResult("O título é obrigatório.", [nameof(title)]);
+            yield return new ValidationResult(Game.TitleRequiredMessage, [nameof(title)]);
 
         if (string.IsNullOrWhiteSpace(description))
             yield return new ValidationResult("A descrição é obrigatória", [nameof(description)]);
@@ -26,7 +27,7 @@ public record CreateGameDto(
         if(releaseDate == null)
             yield return new ValidationResult("A data de lançamento não pode ser nula", [nameof(releaseDate)]);
 
-        if (price <= 0)
-            yield return new ValidationResult("O Preço do jogo não pode ser negativo", [nameof(price)]);
+        if (price < Game.MinPrice)
+            yield return new ValidationResult(Game.NegativePriceMessage, [nameof(price)]);
     }
 }

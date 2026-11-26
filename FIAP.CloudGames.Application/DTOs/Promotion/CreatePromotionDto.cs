@@ -15,11 +15,11 @@ public record CreatePromotionDto(
 {
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (EndDate < StartDate)
-            yield return new ValidationResult("A data final não pode ser anterior à data inicial.", [nameof(EndDate)]);
+        if (!Domain.Entities.Promotion.IsValidPeriod(StartDate, EndDate))
+            yield return new ValidationResult(Domain.Entities.Promotion.InvalidPeriodMessage, [nameof(EndDate)]);
 
-        if (DiscountPercentage is < 0 or > 100)
-            yield return new ValidationResult("O desconto deve estar entre 0 e 100.", [nameof(DiscountPercentage)]);
+        if (!Domain.Entities.Promotion.IsValidDiscount(DiscountPercentage))
+            yield return new ValidationResult(Domain.Entities.Promotion.InvalidDiscountMessage, [nameof(DiscountPercentage)]);
     }
 }
 

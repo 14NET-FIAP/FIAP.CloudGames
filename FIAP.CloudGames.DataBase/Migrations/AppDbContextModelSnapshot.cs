@@ -119,6 +119,18 @@ namespace FIAP.CloudGames.DataBase.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3f2c9a1e-7b4d-4e8a-9c61-2d5f0b8e7a13"),
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Email = "admin@fiapcloudgames.com",
+                            IsActive = true,
+                            Name = "Administrador",
+                            PasswordHash = "6G94qKPK8LYNjnTllCqm2G3BUM08AzOK7yW30tfjrMc=",
+                            TypeUser = 1
+                        });
                 });
 
             modelBuilder.Entity("FIAP.CloudGames.Domain.Entities.UserLibrary", b =>

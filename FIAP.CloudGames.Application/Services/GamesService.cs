@@ -2,32 +2,46 @@
 using FIAP.CloudGames.Application.Interfaces;
 using FIAP.CloudGames.Application.Mappings;
 using FIAP.CloudGames.Domain.Entities;
+using FIAP.CloudGames.Domain.Exceptions;
 using FIAP.CloudGames.Domain.ReadModels;
 using FIAP.CloudGames.Domain.Repositories;
 using FIAP.CloudGames.Domain.Services;
+using Microsoft.Extensions.Logging;
 
 namespace FIAP.CloudGames.Application.Services;
 
 public class GamesService : IGamesService
 {
+    private const string GameAlreadyExistsMessage = "Game already exists.";
+    private const string GameNotFoundMessage = "Game not found.";
+
     private readonly IGameRepository _gameRepository;
     private readonly IPromotionRepository _promotionRepository;
+    private readonly ILogger<GamesService> _logger;
 
-    public GamesService(IGameRepository gameRepository, IPromotionRepository promotionRepository)
+    public GamesService(IGameRepository gameRepository, IPromotionRepository promotionRepository, ILogger<GamesService> logger)
     {
         _gameRepository = gameRepository;
         _promotionRepository = promotionRepository;
+        _logger = logger;
     }
 
     public Result<Guid> CreateNewGame(CreateGameDto gameDto)
     {
-        Game game = GameMapping.MapGameToCreate(gameDto);
+        try
+        {
+            Game game = GameMapping.MapGameToCreate(gameDto);
 
-        if (VerifyGameExists(game.Title, game.ReleaseDate!.Value))
-            return Result<Guid>.Failure("Game already exists.");
+            if (VerifyGameExists(game.Title, game.ReleaseDate!.Value))
+                return Result<Guid>.Failure(GameAlreadyExistsMessage);
 
-        _gameRepository.CreateGame(game);
-        return Result<Guid>.Success(game.Id);
+            _gameRepository.CreateGame(game);
+            return Result<Guid>.Success(game.Id);
+        }
+        catch (DomainException ex)
+        {
+            return Result<Guid>.Failure(ex.Message);
+        }
     }
 
     public async Task<ResultList<GamesListDto>> GetAllActivesGamesAsync(CancellationToken ct = default)
@@ -45,18 +59,36 @@ public class GamesService : IGamesService
 
     public Result UpdateGame(UpdateGameDto gameDto, Guid id)
     {
-        if (!VerifyGameExists(id)) return Result.Failure("Game not found.");
-        _gameRepository.UpdateGame(id, gameDto.title, gameDto.description, gameDto.price, gameDto.releaseDate);
-        return Result.Success();
+        try
+        {
+            Game? game = _gameRepository.GetGameById(id);
+            if (game is null)
+                return Result.Failure(GameNotFoundMessage);
+
+            game.Update(gameDto.title, gameDto.description, gameDto.price, gameDto.releaseDate);
+            _gameRepository.UpdateGame(game);
+
+            _logger.LogInformation("Jogo {GameId} atualizado", id);
+            return Result.Success();
+        }
+        catch (DomainException ex)
+        {
+            return Result.Failure(ex.Message);
+        }
     }
 
     public Result DeleteGame(Guid id)
     {
-        if (!VerifyGameExists(id)) return Result.Failure("Game not found.");
-        _gameRepository.DeleteGame(id);
+        Game? game = _gameRepository.GetGameById(id);
+        if (game is null)
+            return Result.Failure(GameNotFoundMessage);
+
+        game.Deactivate();
+        _gameRepository.UpdateGame(game);
+
+        _logger.LogInformation("Jogo {GameId} desativado", id);
         return Result.Success();
     }
 
     private bool VerifyGameExists(string name, DateTime releaseDate) => _gameRepository.VerifyIfExist(name, releaseDate);
-    private bool VerifyGameExists(Guid id) => _gameRepository.VerifyIfExist(id);
 }

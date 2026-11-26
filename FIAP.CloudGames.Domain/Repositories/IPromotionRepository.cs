@@ -9,7 +9,7 @@ public interface IPromotionRepository
     Task<IReadOnlyList<PromotionListRow>> GetAllPromotionsAsync(CancellationToken ct = default);
     IEnumerable<Promotion> GetActivePromotions(DateTime currentDate);
     Task<IReadOnlyList<Promotion>> GetActivePromotionsByGameIdsAsync(IEnumerable<Guid> gameIds,CancellationToken ct = default);
-    void DesactivePromotion(Guid id);
-    void UpdateAsync(Promotion updatedPromotion);
+    Promotion? GetPromotionById(Guid id);
+    void UpdatePromotion(Promotion promotion);
     bool VerifyIfExist(Guid id);
 }

@@ -15,8 +15,7 @@ public interface IGameRepository
     Task<IReadOnlyList<Game>> GetAllActivesGamesAsync(CancellationToken ct = default);
     Task<IReadOnlyList<GameListRow>> GetActiveGamesWithBestDiscountAsync(/*int page, int pageSize, */CancellationToken ct = default);
     Game? GetGameById(Guid id);
-    void DeleteGame(Guid id);
-    void UpdateGame(Guid id, string? title, string? description, decimal? price, DateTime? releaseDate);
+    void UpdateGame(Game game);
     bool VerifyIfExist(string name, DateTime releaseDate);
     bool VerifyIfExist(Guid id);
 }
