@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using System.Security.Claims;
 
 namespace FIAP.CloudGames.API.Attributes;
-
-// Libera a action para Administradores ou para o próprio usuário cujo id está na rota.
 public class IsSelfOrAdminAttribute : ActionFilterAttribute
 {
     private const string UserIdRouteKey = "id";

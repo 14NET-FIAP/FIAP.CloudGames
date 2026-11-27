@@ -24,11 +24,9 @@ public class User
         PasswordHash = password;
         TypeUser = TypeUserEnum.User;
         CreatedAt = DateTime.UtcNow;
-        //GamesLibrary = new List<UserLibrary>();
         IsActive = true;
     }
 
-    // Atualização parcial: valores nulos ou em branco mantêm o dado atual.
     public void Update(string? name, string? email, string? passwordHash)
     {
         if (!string.IsNullOrWhiteSpace(name))

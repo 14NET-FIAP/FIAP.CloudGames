@@ -13,7 +13,6 @@ public class UserLibrary
 
     public DateTime AcquisitionDate { get; private set; }
 
-    // Congelado na aquisição: mudanças futuras de preço ou promoção não alteram o valor pago.
     public decimal PricePaid { get; private set; }
 
     protected UserLibrary() { }

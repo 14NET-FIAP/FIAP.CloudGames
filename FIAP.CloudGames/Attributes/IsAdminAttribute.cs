@@ -29,7 +29,6 @@ public class IsAdminAttribute : ActionFilterAttribute
     {
         string traceId = httpContext.GetTraceId();
 
-        // Atributos de filtro não recebem DI pelo construtor; o logger vem do escopo da requisição.
         httpContext.RequestServices.GetRequiredService<ILogger<IsAdminAttribute>>()
             .LogWarning("Acesso negado em {Method} {Path}: usuário não é Administrador. TraceId: {TraceId}",
                 httpContext.Request.Method, httpContext.Request.Path, traceId);

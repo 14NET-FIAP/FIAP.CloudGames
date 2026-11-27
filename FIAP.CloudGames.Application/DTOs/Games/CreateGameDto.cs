@@ -1,12 +1,5 @@
 ﻿using FIAP.CloudGames.Domain.Entities;
-using FIAP.CloudGames.Domain.Exceptions;
-using FIAP.CloudGames.Domain.ValueObjects;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FIAP.CloudGames.Application.DTOs.Games;
 
@@ -24,8 +17,6 @@ public record CreateGameDto(
         if (string.IsNullOrWhiteSpace(description))
             yield return new ValidationResult("A descrição é obrigatória", [nameof(description)]);
 
-        if(releaseDate == null)
-            yield return new ValidationResult("A data de lançamento não pode ser nula", [nameof(releaseDate)]);
 
         if (price < Game.MinPrice)
             yield return new ValidationResult(Game.NegativePriceMessage, [nameof(price)]);

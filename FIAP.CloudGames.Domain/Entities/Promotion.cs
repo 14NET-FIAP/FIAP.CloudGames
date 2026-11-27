@@ -52,7 +52,6 @@ public class Promotion
     public static bool IsValidDiscount(decimal discountPercentage) =>
         discountPercentage is >= MinDiscountPercentage and <= MaxDiscountPercentage;
 
-    // Datas iguais são aceitas: promoção válida durante um único instante/dia.
     public static bool IsValidPeriod(DateTime startDate, DateTime endDate) => endDate >= startDate;
 
     private static void EnsureValidDiscount(decimal discountPercentage)
